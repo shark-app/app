@@ -2,4 +2,10 @@
     <string name="app_name">Shark</string>
     <string name="option_one">Display your QR code</string>
     <string name="option_two">Scan QR code</string>
+    <string name="share_activity_name">Share OR code</string>
+    <string name="register_activity_name">Register</string>
+    <string name="email_hint">Email address</string>
+    <string name="name_hint">Name</string>
+    <string name="public_key_hint">Select public key file</string>
+    <string name="private_key_hint">Select private key file</string>
 </resources>

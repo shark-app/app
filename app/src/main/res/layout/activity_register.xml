@@ -23,11 +23,11 @@
         android:layout_alignParentStart="true">
 
         <com.github.florent37.materialtextfield.MaterialTextField
-            android:id="@+id/nameField"
             android:layout_width="@dimen/edittext_width"
             android:layout_height="wrap_content"
             app:mtf_image="@drawable/ic_account_box_black_24dp">
             <EditText
+                android:id="@+id/nameField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/name_hint"
@@ -36,12 +36,12 @@
         </com.github.florent37.materialtextfield.MaterialTextField>
 
         <com.github.florent37.materialtextfield.MaterialTextField
-            android:id="@+id/emailField"
             android:layout_width="@dimen/edittext_width"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/standard_padding"
             app:mtf_image="@drawable/ic_email_black_24dp">
             <EditText
+                android:id="@+id/emailField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/email_hint"

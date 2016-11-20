@@ -3,4 +3,5 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="standard_padding">20dp</dimen>
+    <dimen name="edittext_width">300dp</dimen>
 </resources>

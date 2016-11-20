@@ -6,10 +6,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-public class ShareActivity extends AppCompatActivity {
-    public static final String PREFS_NAME = "SHARK_PREFS";
-    public static final String PREFS_USER_EXISTS_KEY = "userExists";
+import static io.github.shark_app.shark.MainActivity.PREFS_NAME;
+import static io.github.shark_app.shark.MainActivity.PREFS_USER_EXISTS_KEY;
 
+public class ShareActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

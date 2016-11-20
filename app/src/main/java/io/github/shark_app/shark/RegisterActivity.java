@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
+import java.io.File;
 import java.util.regex.Pattern;
 
 import butterknife.BindView;
@@ -28,6 +29,8 @@ public class RegisterActivity extends AppCompatActivity {
     public static final int PUBLIC_KEY_FILE_PICKER_REQUEST_CODE = 1;
     public static final int PRIVATE_KEY_FILE_PICKER_REQUEST_CODE = 2;
     private int FILE_PICKER_REQUEST_CODE;
+    public String publicKeyFilePath;
+    public String privateKeyFilePath;
 
     @BindView(R.id.nameField) EditText nameField;
     @BindView(R.id.emailField) EditText emailField;
@@ -92,7 +95,7 @@ public class RegisterActivity extends AppCompatActivity {
         new MaterialFilePicker()
                 .withActivity(this)
                 .withRequestCode(FILE_PICKER_REQUEST_CODE)
-                .withFilter(Pattern.compile(".*\\.txt$"))
+                .withFilter(Pattern.compile("(.*\\.txt$|.*\\.gpg$|.*\\.asc$)"))
                 .withHiddenFiles(true)
                 .start();
     }
@@ -100,22 +103,29 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PUBLIC_KEY_FILE_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
-            FILE_PICKER_REQUEST_CODE = -1;
-            String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+        if (requestCode == FILE_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
+            String fullPath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+            int index = fullPath.lastIndexOf(File.separator);
+            String path = fullPath.substring(index + 1);
             if (path != null) {
-                Log.d("Path: ", path);
-                Toast.makeText(this, "Picked PUBLIC KEY file: " + path, Toast.LENGTH_LONG).show();
+                switch(FILE_PICKER_REQUEST_CODE) {
+                    case 1: {
+                        publicKeyFilePath = fullPath;
+                        Log.d("Path: ", path);
+                        Toast.makeText(this, "Picked PUBLIC KEY file: " + path, Toast.LENGTH_LONG).show();
+                        publicKeyButton.setText("Picked file " + path);
+                        break;
+                    }
+                    case 2: {
+                        privateKeyFilePath = fullPath;
+                        Log.d("Path: ", path);
+                        Toast.makeText(this, "Picked PRIVATE KEY file: " + path, Toast.LENGTH_LONG).show();
+                        privateKeyButton.setText("Picked file " + path);
+                        break;
+                    }
+                }
             }
-        }
-        else if (requestCode == PRIVATE_KEY_FILE_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
             FILE_PICKER_REQUEST_CODE = -1;
-            String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
-            if (path != null) {
-                Log.d("Path: ", path);
-                Toast.makeText(this, "Picked PRIVATE KEY file: " + path, Toast.LENGTH_LONG).show();
-            }
         }
-
     }
 }

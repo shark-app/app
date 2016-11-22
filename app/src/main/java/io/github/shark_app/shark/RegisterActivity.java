@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
     @BindView(R.id.privateKeyButton) Button privateKeyButton;
     @BindView(R.id.registerButton) Button registerButton;
 
-    @BindColor(android.R.color.black) int black;
+    @BindColor(R.color.fbutton_color_alizarin) int red;
     @BindColor(android.R.color.white) int white;
 
     @Override
@@ -90,18 +90,18 @@ public class RegisterActivity extends AppCompatActivity {
             setError = true;
         }
         if (!pickedPublicKeyFile && !pickedPrivateKeyFile) {
-            publicKeyButton.setTextColor(black);
-            privateKeyButton.setTextColor(black);
+            publicKeyButton.setTextColor(red);
+            privateKeyButton.setTextColor(red);
             makeSnackbar(view, "No public and private key file selected!");
             setError = true;
         }
         else if (!pickedPublicKeyFile) {
-            publicKeyButton.setTextColor(black);
+            publicKeyButton.setTextColor(red);
             makeSnackbar(view, "No public key file selected!");
             setError = true;
         }
         else if (!pickedPrivateKeyFile) {
-            privateKeyButton.setTextColor(black);
+            privateKeyButton.setTextColor(red);
             makeSnackbar(view, "No private key file selected!");
             setError = true;
         }

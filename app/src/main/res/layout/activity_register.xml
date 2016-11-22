@@ -70,7 +70,7 @@
             android:text="@string/public_key_hint"
             android:drawableLeft="@drawable/ic_people_white_24dp"
             android:drawablePadding="@dimen/standard_padding"
-            fbutton:buttonColor="@color/fbutton_color_emerald"
+            fbutton:buttonColor="@color/fbutton_color_nephritis"
             fbutton:shadowEnabled="true"/>
 
         <info.hoang8f.widget.FButton
@@ -86,7 +86,7 @@
             android:text="@string/private_key_hint"
             android:drawableLeft="@drawable/ic_person_white_24dp"
             android:drawablePadding="@dimen/standard_padding"
-            fbutton:buttonColor="@color/fbutton_color_alizarin"
+            fbutton:buttonColor="@color/fbutton_color_orange"
             fbutton:shadowEnabled="true"/>
 
         <info.hoang8f.widget.FButton

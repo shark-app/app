@@ -10,7 +10,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -71,6 +70,12 @@ public class RegisterActivity extends AppCompatActivity {
 
     @OnClick(R.id.registerButton)
     public void registerUser(View view) {
+        boolean errorStatus = validateForm(view);
+        if (errorStatus) return;
+        else return;
+    }
+
+    private boolean validateForm(View view) {
         boolean setError = false;
         if (!checkEmptySetError(nameField)) {
             userName = nameField.getText().toString().trim();
@@ -100,8 +105,7 @@ public class RegisterActivity extends AppCompatActivity {
             makeSnackbar(view, "No private key file selected!");
             setError = true;
         }
-        if (setError) return;
-        return;
+        return setError;
     }
 
     private void makeSnackbar(View view, String snackbarText) {

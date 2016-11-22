@@ -21,6 +21,7 @@ import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import java.io.File;
 import java.util.regex.Pattern;
 
+import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -34,12 +35,17 @@ public class RegisterActivity extends AppCompatActivity {
     public String userEmail;
     public String publicKeyFilePath;
     public String privateKeyFilePath;
+    private Boolean pickedPublicKeyFile = false;
+    private Boolean pickedPrivateKeyFile = false;
 
     @BindView(R.id.nameField) EditText nameField;
     @BindView(R.id.emailField) EditText emailField;
     @BindView(R.id.publicKeyButton) Button publicKeyButton;
     @BindView(R.id.privateKeyButton) Button privateKeyButton;
     @BindView(R.id.registerButton) Button registerButton;
+
+    @BindColor(R.color.fbutton_color_alizarin) int red;
+    @BindColor(android.R.color.white) int white;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +81,14 @@ public class RegisterActivity extends AppCompatActivity {
             userEmail = emailField.getText().toString().trim();
         }
         else {
+            setError = true;
+        }
+        if (!pickedPublicKeyFile) {
+            publicKeyButton.setTextColor(red);
+            setError = true;
+        }
+        if (!pickedPrivateKeyFile) {
+            privateKeyButton.setTextColor(red);
             setError = true;
         }
         if (setError) return;
@@ -157,6 +171,8 @@ public class RegisterActivity extends AppCompatActivity {
                         Toast.makeText(this, "Picked PUBLIC KEY file: " + filename, Toast.LENGTH_LONG).show();
                         String buttonText = "Picked file " + filename;
                         publicKeyButton.setText(buttonText);
+                        publicKeyButton.setTextColor(white);
+                        pickedPublicKeyFile = true;
                         break;
                     }
                     case 2: {
@@ -165,6 +181,8 @@ public class RegisterActivity extends AppCompatActivity {
                         Toast.makeText(this, "Picked PRIVATE KEY file: " + filename, Toast.LENGTH_LONG).show();
                         String buttonText = "Picked file " + filename;
                         privateKeyButton.setText(buttonText);
+                        privateKeyButton.setTextColor(white);
+                        pickedPrivateKeyFile = true;
                         break;
                     }
                 }

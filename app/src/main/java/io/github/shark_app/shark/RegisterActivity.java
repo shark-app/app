@@ -155,16 +155,16 @@ public class RegisterActivity extends AppCompatActivity {
                         publicKeyFilePath = fullPath;
                         Log.d("Path: ", fullPath);
                         Toast.makeText(this, "Picked PUBLIC KEY file: " + filename, Toast.LENGTH_LONG).show();
-                        String toastText = "Picked file " + filename;
-                        publicKeyButton.setText(toastText);
+                        String buttonText = "Picked file " + filename;
+                        publicKeyButton.setText(buttonText);
                         break;
                     }
                     case 2: {
                         privateKeyFilePath = fullPath;
                         Log.d("Path: ", fullPath);
                         Toast.makeText(this, "Picked PRIVATE KEY file: " + filename, Toast.LENGTH_LONG).show();
-                        String toastText = "Picked file " + filename;
-                        privateKeyButton.setText(toastText);
+                        String buttonText = "Picked file " + filename;
+                        privateKeyButton.setText(buttonText);
                         break;
                     }
                 }

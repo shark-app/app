@@ -68,6 +68,8 @@
             android:paddingRight="@dimen/standard_padding"
             android:textColor="@android:color/white"
             android:text="@string/public_key_hint"
+            android:drawableLeft="@drawable/ic_people_white_24dp"
+            android:drawablePadding="@dimen/standard_padding"
             fbutton:buttonColor="@color/fbutton_color_emerald"
             fbutton:shadowEnabled="true"/>
 
@@ -82,6 +84,8 @@
             android:paddingRight="@dimen/standard_padding"
             android:textColor="@android:color/white"
             android:text="@string/private_key_hint"
+            android:drawableLeft="@drawable/ic_person_white_24dp"
+            android:drawablePadding="@dimen/standard_padding"
             fbutton:buttonColor="@color/fbutton_color_alizarin"
             fbutton:shadowEnabled="true"/>
 

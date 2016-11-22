@@ -147,22 +147,24 @@ public class RegisterActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == FILE_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
             String fullPath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
-            int index = fullPath.lastIndexOf(File.separator);
-            String path = fullPath.substring(index + 1);
-            if (path != null) {
+            if (fullPath != null) {
+                int index = fullPath.lastIndexOf(File.separator);
+                String filename = fullPath.substring(index + 1);
                 switch(FILE_PICKER_REQUEST_CODE) {
                     case 1: {
                         publicKeyFilePath = fullPath;
-                        Log.d("Path: ", path);
-                        Toast.makeText(this, "Picked PUBLIC KEY file: " + path, Toast.LENGTH_LONG).show();
-                        publicKeyButton.setText("Picked file " + path);
+                        Log.d("Path: ", fullPath);
+                        Toast.makeText(this, "Picked PUBLIC KEY file: " + filename, Toast.LENGTH_LONG).show();
+                        String toastText = "Picked file " + filename;
+                        publicKeyButton.setText(toastText);
                         break;
                     }
                     case 2: {
                         privateKeyFilePath = fullPath;
-                        Log.d("Path: ", path);
-                        Toast.makeText(this, "Picked PRIVATE KEY file: " + path, Toast.LENGTH_LONG).show();
-                        privateKeyButton.setText("Picked file " + path);
+                        Log.d("Path: ", fullPath);
+                        Toast.makeText(this, "Picked PRIVATE KEY file: " + filename, Toast.LENGTH_LONG).show();
+                        String toastText = "Picked file " + filename;
+                        privateKeyButton.setText(toastText);
                         break;
                     }
                 }

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -83,16 +84,33 @@ public class RegisterActivity extends AppCompatActivity {
         else {
             setError = true;
         }
-        if (!pickedPublicKeyFile) {
+        if (!pickedPublicKeyFile && !pickedPrivateKeyFile) {
             publicKeyButton.setTextColor(red);
+            privateKeyButton.setTextColor(red);
+            makeSnackbar(view, "No public and private key file selected!");
             setError = true;
         }
-        if (!pickedPrivateKeyFile) {
+        else if (!pickedPublicKeyFile) {
+            publicKeyButton.setTextColor(red);
+            makeSnackbar(view, "No public key file selected!");
+            setError = true;
+        }
+        else if (!pickedPrivateKeyFile) {
             privateKeyButton.setTextColor(red);
+            makeSnackbar(view, "No private key file selected!");
             setError = true;
         }
         if (setError) return;
         return;
+    }
+
+    private void makeSnackbar(View view, String snackbarText) {
+        Snackbar.make(view, snackbarText, Snackbar.LENGTH_LONG)
+                .setAction("Dismiss", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {}
+                })
+                .show();
     }
 
     private boolean checkEmptySetError(EditText editText){

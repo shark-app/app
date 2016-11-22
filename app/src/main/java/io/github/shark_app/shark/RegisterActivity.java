@@ -46,6 +46,8 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         ButterKnife.bind(this);
+        nameField.clearFocus();
+        emailField.clearFocus();
     }
 
     @OnClick(R.id.publicKeyButton)
@@ -62,20 +64,26 @@ public class RegisterActivity extends AppCompatActivity {
 
     @OnClick(R.id.registerButton)
     public void registerUser(View view) {
+        boolean setError = false;
         if (!checkEmptySetError(nameField)) {
             userName = nameField.getText().toString().trim();
         }
-        else return;
+        else {
+            setError = true;
+        }
         if (!checkEmptySetError(emailField) && !checkEmailSetError(emailField)) {
             userEmail = emailField.getText().toString().trim();
         }
-        else return;
+        else {
+            setError = true;
+        }
+        if (setError) return;
+        return;
     }
 
     private boolean checkEmptySetError(EditText editText){
         String text = editText.getText().toString().trim();
         if (TextUtils.isEmpty(text)) {
-            editText.requestFocus();
             editText.setError("This field is required");
             return true;
         }
@@ -86,7 +94,6 @@ public class RegisterActivity extends AppCompatActivity {
         String text = editText.getText().toString().trim();
         if (isEmailValid(text)) return false;
         else {
-            editText.requestFocus();
             editText.setError("Invalid email address");
             return true;
         }

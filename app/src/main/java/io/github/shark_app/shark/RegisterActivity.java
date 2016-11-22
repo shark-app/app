@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +30,8 @@ public class RegisterActivity extends AppCompatActivity {
     public static final int PUBLIC_KEY_FILE_PICKER_REQUEST_CODE = 1;
     public static final int PRIVATE_KEY_FILE_PICKER_REQUEST_CODE = 2;
     private int FILE_PICKER_REQUEST_CODE;
+    public String userName;
+    public String userEmail;
     public String publicKeyFilePath;
     public String privateKeyFilePath;
 
@@ -59,6 +62,38 @@ public class RegisterActivity extends AppCompatActivity {
 
     @OnClick(R.id.registerButton)
     public void registerUser(View view) {
+        if (!checkEmptySetError(nameField)) {
+            userName = nameField.getText().toString().trim();
+        }
+        else return;
+        if (!checkEmptySetError(emailField) && !checkEmailSetError(emailField)) {
+            userEmail = emailField.getText().toString().trim();
+        }
+        else return;
+    }
+
+    private boolean checkEmptySetError(EditText editText){
+        String text = editText.getText().toString().trim();
+        if (TextUtils.isEmpty(text)) {
+            editText.requestFocus();
+            editText.setError("This field is required");
+            return true;
+        }
+        else return false;
+    }
+
+    private boolean checkEmailSetError(EditText editText){
+        String text = editText.getText().toString().trim();
+        if (isEmailValid(text)) return false;
+        else {
+            editText.requestFocus();
+            editText.setError("Invalid email address");
+            return true;
+        }
+    }
+
+    boolean isEmailValid(CharSequence email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     private void checkPermissionsAndOpenFilePicker() {

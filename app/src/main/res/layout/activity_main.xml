@@ -11,7 +11,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     tools:context="io.github.shark_app.shark.MainActivity"
-    android:background="@color/fbutton_color_clouds">
+    android:background="@color/fbutton_color_midnight_blue">
 
     <LinearLayout
         android:orientation="vertical"

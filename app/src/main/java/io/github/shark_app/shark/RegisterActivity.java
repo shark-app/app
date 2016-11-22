@@ -45,7 +45,7 @@ public class RegisterActivity extends AppCompatActivity {
     @BindView(R.id.privateKeyButton) Button privateKeyButton;
     @BindView(R.id.registerButton) Button registerButton;
 
-    @BindColor(R.color.fbutton_color_alizarin) int red;
+    @BindColor(android.R.color.black) int black;
     @BindColor(android.R.color.white) int white;
 
     @Override
@@ -85,18 +85,18 @@ public class RegisterActivity extends AppCompatActivity {
             setError = true;
         }
         if (!pickedPublicKeyFile && !pickedPrivateKeyFile) {
-            publicKeyButton.setTextColor(red);
-            privateKeyButton.setTextColor(red);
+            publicKeyButton.setTextColor(black);
+            privateKeyButton.setTextColor(black);
             makeSnackbar(view, "No public and private key file selected!");
             setError = true;
         }
         else if (!pickedPublicKeyFile) {
-            publicKeyButton.setTextColor(red);
+            publicKeyButton.setTextColor(black);
             makeSnackbar(view, "No public key file selected!");
             setError = true;
         }
         else if (!pickedPrivateKeyFile) {
-            privateKeyButton.setTextColor(red);
+            privateKeyButton.setTextColor(black);
             makeSnackbar(view, "No private key file selected!");
             setError = true;
         }
@@ -185,8 +185,6 @@ public class RegisterActivity extends AppCompatActivity {
                 switch(FILE_PICKER_REQUEST_CODE) {
                     case 1: {
                         publicKeyFilePath = fullPath;
-                        Log.d("Path: ", fullPath);
-                        Toast.makeText(this, "Picked PUBLIC KEY file: " + filename, Toast.LENGTH_LONG).show();
                         String buttonText = "Picked file " + filename;
                         publicKeyButton.setText(buttonText);
                         publicKeyButton.setTextColor(white);
@@ -195,8 +193,6 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                     case 2: {
                         privateKeyFilePath = fullPath;
-                        Log.d("Path: ", fullPath);
-                        Toast.makeText(this, "Picked PRIVATE KEY file: " + filename, Toast.LENGTH_LONG).show();
                         String buttonText = "Picked file " + filename;
                         privateKeyButton.setText(buttonText);
                         privateKeyButton.setTextColor(white);

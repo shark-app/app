@@ -1,6 +1,7 @@
 package io.github.shark_app.shark;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,7 +10,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
@@ -36,26 +36,28 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
 
     @Override
     public void onRetrieved(final Barcode barcode) {
-        Log.d(TAG, "Barcode read: " + barcode.displayValue);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 AlertDialog.Builder builder = new AlertDialog.Builder(ScanActivity.this)
-                        .setTitle("code retrieved")
+                        .setTitle("Code retrieved")
                         .setMessage(barcode.displayValue);
                 builder.show();
             }
         });
+        Intent intent = new Intent(SignActivity.class);
+        intent.putExtra("qrCodeValue", barcode.displayValue);
+        startActivity(intent);
+        finish();
     }
 
     @Override
     public void onRetrievedFailed(final String reason) {
-        Log.d(TAG, "Barcode reading failed : " + reason);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 AlertDialog.Builder builder = new AlertDialog.Builder(ScanActivity.this)
-                        .setTitle("Barcode failed")
+                        .setTitle("Code scanning failed")
                         .setMessage(reason);
                 builder.show();
             }

@@ -73,7 +73,7 @@ public class RegisterActivity extends AppCompatActivity {
     @BindView(R.id.privateKeyButton) Button privateKeyButton;
     @BindView(R.id.registerButton) Button registerButton;
 
-    @BindColor(R.color.fbutton_color_alizarin) int red;
+    @BindColor(R.color.fbutton_color_pomegranate) int red;
     @BindColor(android.R.color.white) int white;
 
     @Override

@@ -30,6 +30,7 @@ public class ShareActivity extends AppCompatActivity {
         if (!userExists) {
             Intent intent = new Intent(this, RegisterActivity.class);
             startActivity(intent);
+            finish();
         }
         else {
             SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);

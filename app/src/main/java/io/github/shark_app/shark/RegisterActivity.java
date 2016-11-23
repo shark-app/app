@@ -1,7 +1,9 @@
 package io.github.shark_app.shark;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,13 +19,24 @@ import android.widget.EditText;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 
 import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static io.github.shark_app.shark.MainActivity.PREFS_NAME;
+import static io.github.shark_app.shark.MainActivity.PREFS_USER_EMAIL;
+import static io.github.shark_app.shark.MainActivity.PREFS_USER_EXISTS_KEY;
+import static io.github.shark_app.shark.MainActivity.PREFS_USER_NAME;
+import static io.github.shark_app.shark.MainActivity.PREFS_USER_PRIVATE_KEY;
+import static io.github.shark_app.shark.MainActivity.PREFS_USER_PUBLIC_KEY;
 
 public class RegisterActivity extends AppCompatActivity {
     public static final int PERMISSIONS_REQUEST_CODE = 0;
@@ -71,7 +84,38 @@ public class RegisterActivity extends AppCompatActivity {
     public void registerUser(View view) {
         boolean errorStatus = validateForm(view);
         if (errorStatus) return;
-        else return;
+        setSharedPreferencesData();
+    }
+
+    private void setSharedPreferencesData(){
+        String userName = nameField.getText().toString().trim();
+        String userEmail = emailField.getText().toString().trim();
+        String userPublicKey = getKeyFromFile(publicKeyFilePath);
+        String userPrivateKey = getKeyFromFile(privateKeyFilePath);
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean(PREFS_USER_EXISTS_KEY, true);
+        editor.putString(PREFS_USER_NAME, userName);
+        editor.putString(PREFS_USER_EMAIL, userEmail);
+        editor.putString(PREFS_USER_PUBLIC_KEY, userPublicKey);
+        editor.putString(PREFS_USER_PRIVATE_KEY, userPrivateKey);
+        editor.commit();
+    }
+
+    private String getKeyFromFile(String path){
+        String line;
+        String data = new String();
+        try {
+            File file = new File(path);
+            FileInputStream fileInputStream = new FileInputStream(file);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
+            while ((line = bufferedReader.readLine()) != null) {
+                data += line + "\n";
+            }
+            bufferedReader.close();
+        }
+        catch (IOException e) {}
+        return data;
     }
 
     private boolean validateForm(View view) {

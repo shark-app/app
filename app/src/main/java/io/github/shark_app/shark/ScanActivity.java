@@ -45,7 +45,7 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
                 builder.show();
             }
         });
-        Intent intent = new Intent(SignActivity.class);
+        Intent intent = new Intent(this, SignActivity.class);
         intent.putExtra("qrCodeValue", barcode.displayValue);
         startActivity(intent);
         finish();

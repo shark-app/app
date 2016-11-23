@@ -12,5 +12,5 @@
     <string name="private_key_hint">Select private key file</string>
     <string name="scanned_public_key_hint">Public key</string>
     <string name="scanned_private_key_hint">Private key</string>
-    <string name="sign_button_text">Sign scanned user's\nkey with your key</string>
+    <string name="sign_button_text">Sign scanned user\'s\nkey with your key</string>
 </resources>

@@ -215,16 +215,12 @@ public class RegisterActivity extends AppCompatActivity {
         String permission = Manifest.permission.READ_EXTERNAL_STORAGE;
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-                showError(getWindow().getDecorView().getRootView());
+                makeSnackbar(getWindow().getDecorView().getRootView(), "Allow external storage reading");
             }
             ActivityCompat.requestPermissions(this, new String[]{permission}, PERMISSIONS_REQUEST_CODE);
         } else {
             openFilePicker(FILE_PICKER_REQUEST_CODE);
         }
-    }
-
-    private void showError(View view) {
-        makeSnackbar(view, "Allow external storage reading");
     }
 
     @Override
@@ -234,8 +230,7 @@ public class RegisterActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     openFilePicker(FILE_PICKER_REQUEST_CODE);
                 } else {
-                    showError(getWindow().getDecorView().getRootView());
-                    checkPermissionsAndOpenFilePicker();
+                    makeSnackbar(getWindow().getDecorView().getRootView(), "Cannot continue without storage access");
                 }
             }
         }

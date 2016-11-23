@@ -134,7 +134,7 @@ public class RegisterActivity extends AppCompatActivity {
         editor.putString(PREFS_USER_EMAIL, userEmail);
         editor.putString(PREFS_USER_PUBLIC_KEY, userPublicKey);
         editor.putString(PREFS_USER_PRIVATE_KEY, userPrivateKey);
-        editor.apply();
+        editor.commit();
     }
 
     private String getKeyFromFile(String path){

@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
         if (!userExists()) {
             final Intent intent = new Intent(context, one);
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
-                    .setTitle("Code retrieved")
                     .setTitle("Before you proceed")
                     .setMessage("You must register before being able to access any features of the application. Press OK to register now.")
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {

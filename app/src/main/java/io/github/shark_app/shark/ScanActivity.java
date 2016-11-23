@@ -1,7 +1,9 @@
 package io.github.shark_app.shark;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,6 +23,8 @@ import java.util.List;
 
 import xyz.belvi.mobilevisionbarcodescanner.BarcodeRetriever;
 
+import static io.github.shark_app.shark.MainActivity.PREFS_NAME;
+import static io.github.shark_app.shark.MainActivity.PREFS_USER_EXISTS_KEY;
 import static io.github.shark_app.shark.R.id.barcode;
 
 public class ScanActivity extends AppCompatActivity implements BarcodeRetriever {
@@ -31,7 +35,19 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
+        boolean userExists = checkIfUserExists();
+        if (!userExists) {
+            Intent intent = new Intent(this, RegisterActivity.class);
+            startActivity(intent);
+            finish();
+        }
         checkPermissions();
+    }
+
+    private boolean checkIfUserExists(){
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        boolean userExists = settings.getBoolean(PREFS_USER_EXISTS_KEY, false);
+        return userExists;
     }
 
     @Override

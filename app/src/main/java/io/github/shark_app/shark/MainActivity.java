@@ -16,11 +16,13 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
     public static final String PREFS_NAME = "SHARK_PREFS";
+    public static final String PREFS_FIRST_START_KEY = "isFirstStart";
     public static final String PREFS_USER_EXISTS_KEY = "userExists";
     public static final String PREFS_USER_NAME = "name";
     public static final String PREFS_USER_EMAIL = "email";
     public static final String PREFS_USER_PUBLIC_KEY = "publicKey";
     public static final String PREFS_USER_PRIVATE_KEY = "privateKey";
+    private SharedPreferences settings;
 
     @BindView(R.id.shareButton) Button shareButton;
     @BindView(R.id.scanButton) Button scanButton;
@@ -30,6 +32,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (firstStart()) {
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean(PREFS_FIRST_START_KEY, false);
+            editor.commit();
+            Intent intent = new Intent(this, IntroActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     @OnClick(R.id.shareButton)
@@ -67,8 +78,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean userExists(){
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         boolean userExists = settings.getBoolean(PREFS_USER_EXISTS_KEY, false);
         return userExists;
+    }
+
+    private boolean firstStart(){
+        boolean isFirstStart = settings.getBoolean(PREFS_FIRST_START_KEY, true);
+        return isFirstStart;
     }
 }

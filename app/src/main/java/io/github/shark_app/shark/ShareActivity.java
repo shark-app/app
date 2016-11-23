@@ -16,7 +16,6 @@ import butterknife.ButterKnife;
 
 import static io.github.shark_app.shark.MainActivity.PREFS_NAME;
 import static io.github.shark_app.shark.MainActivity.PREFS_USER_EMAIL;
-import static io.github.shark_app.shark.MainActivity.PREFS_USER_EXISTS_KEY;
 
 public class ShareActivity extends AppCompatActivity {
     @BindView(R.id.qrCodeImageView) ImageView imageView;
@@ -26,23 +25,16 @@ public class ShareActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
         ButterKnife.bind(this);
-        boolean userExists = checkIfUserExists();
-        if (!userExists) {
-            Intent intent = new Intent(this, RegisterActivity.class);
-            startActivity(intent);
-            finish();
-        }
-        else {
-            SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            String userEmail = settings.getString(PREFS_USER_EMAIL, null);
-            Bitmap qrCodeBitmap = QRCode.from(userEmail).to(ImageType.JPG).withSize(512, 512).bitmap();
-            imageView.setImageBitmap(qrCodeBitmap);
-        }
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String userEmail = settings.getString(PREFS_USER_EMAIL, null);
+        Bitmap qrCodeBitmap = QRCode.from(userEmail).to(ImageType.JPG).withSize(512, 512).bitmap();
+        imageView.setImageBitmap(qrCodeBitmap);
     }
 
-    private boolean checkIfUserExists(){
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        boolean userExists = settings.getBoolean(PREFS_USER_EXISTS_KEY, false);
-        return userExists;
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

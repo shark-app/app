@@ -2,6 +2,8 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fbutton="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_sign"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,6 +11,96 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="io.github.shark_app.shark.SignActivity">
+    tools:context="io.github.shark_app.shark.RegisterActivity"
+    android:background="@color/fbutton_color_orange">
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/scannedNameField"
+            android:layout_width="@dimen/edittext_width"
+            android:layout_height="wrap_content"
+            android:hint="@string/name_hint"
+            app:met_baseColor="@android:color/white"
+            app:met_primaryColor="@color/colorPrimaryDark"
+            app:met_textColor="@color/dark_grey"
+            app:met_errorColor="@color/fbutton_color_pomegranate"
+            app:met_underlineColor="@android:color/white"
+            app:met_floatingLabel="highlight"
+            app:met_textColorHint="@android:color/white"
+            app:met_iconLeft="@drawable/ic_account_box_black_24dp"
+            app:met_iconPadding="@dimen/standard_padding"/>
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:layout_marginTop="@dimen/standard_padding"
+            android:id="@+id/scannedEmailField"
+            android:layout_width="@dimen/edittext_width"
+            android:layout_height="wrap_content"
+            android:hint="@string/email_hint"
+            app:met_baseColor="@android:color/white"
+            app:met_primaryColor="@color/colorPrimaryDark"
+            app:met_textColor="@color/dark_grey"
+            app:met_errorColor="@color/fbutton_color_pomegranate"
+            app:met_underlineColor="@android:color/white"
+            app:met_floatingLabel="highlight"
+            app:met_textColorHint="@android:color/white"
+            app:met_iconLeft="@drawable/ic_email_black_24dp"
+            app:met_iconPadding="@dimen/standard_padding"/>
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:layout_marginTop="@dimen/standard_padding"
+            android:id="@+id/scannedPublicKeyField"
+            android:layout_width="@dimen/edittext_width"
+            android:layout_height="wrap_content"
+            android:hint="@string/scanned_public_key_hint"
+            app:met_baseColor="@android:color/white"
+            app:met_primaryColor="@color/colorPrimaryDark"
+            app:met_textColor="@color/dark_grey"
+            app:met_errorColor="@color/fbutton_color_pomegranate"
+            app:met_underlineColor="@android:color/white"
+            app:met_floatingLabel="highlight"
+            app:met_textColorHint="@android:color/white"
+            app:met_iconLeft="@drawable/ic_people_white_24dp"
+            app:met_iconPadding="@dimen/standard_padding"/>
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:layout_marginTop="@dimen/standard_padding"
+            android:id="@+id/scannedPrivateKeyField"
+            android:layout_width="@dimen/edittext_width"
+            android:layout_height="wrap_content"
+            android:hint="@string/scanned_private_key_hint"
+            app:met_baseColor="@android:color/white"
+            app:met_primaryColor="@color/colorPrimaryDark"
+            app:met_textColor="@color/dark_grey"
+            app:met_errorColor="@color/fbutton_color_pomegranate"
+            app:met_underlineColor="@android:color/white"
+            app:met_floatingLabel="highlight"
+            app:met_textColorHint="@android:color/white"
+            app:met_iconLeft="@drawable/ic_person_white_24dp"
+            app:met_iconPadding="@dimen/standard_padding"/>
+
+        <info.hoang8f.widget.FButton
+            android:id="@+id/signButton"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="@dimen/standard_padding"
+            android:paddingTop="@dimen/standard_padding"
+            android:paddingBottom="@dimen/standard_padding"
+            android:paddingLeft="@dimen/standard_padding"
+            android:paddingRight="@dimen/standard_padding"
+            android:textColor="@android:color/white"
+            android:text="@string/sign_button_text"
+            android:drawableLeft="@drawable/ic_lock_white_24dp"
+            android:drawablePadding="@dimen/standard_padding"
+            fbutton:buttonColor="@color/fbutton_color_turquoise"
+            fbutton:shadowEnabled="true"/>
+    </LinearLayout>
 </RelativeLayout>

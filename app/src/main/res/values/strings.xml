@@ -13,4 +13,12 @@
     <string name="scanned_public_key_hint">Public key</string>
     <string name="scanned_private_key_hint">Private key</string>
     <string name="sign_button_text">Sign scanned user\'s\nkey with your key</string>
+    <string name="slide1title">Welcome!</string>
+    <string name="slide1description">Shark provides an easy way to share and sign PGP public keys.</string>
+    <string name="slide2title">Permissions</string>
+    <string name="slide2description">We require the use of your device\'s camera to scan QR codes and read-only access to device storage in order to access your key files. Please grant these permissions when prompted.</string>
+    <string name="slide3title">Permissions</string>
+    <string name="slide3description">Also, we use your device\'s Internet connection in order to store/retrieve public keys on our server.</string>
+    <string name="slide4title">Let\'s get started!</string>
+    <string name="slide4description">Press DONE to proceed.</string>
 </resources>

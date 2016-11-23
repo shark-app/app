@@ -51,8 +51,6 @@ public class RegisterActivity extends AppCompatActivity {
     public static final int PUBLIC_KEY_FILE_PICKER_REQUEST_CODE = 1;
     public static final int PRIVATE_KEY_FILE_PICKER_REQUEST_CODE = 2;
     private int FILE_PICKER_REQUEST_CODE;
-    public String userName;
-    public String userEmail;
     public String publicKeyFilePath;
     public String privateKeyFilePath;
     private String getDataTaskOutput;
@@ -109,11 +107,15 @@ public class RegisterActivity extends AppCompatActivity {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-            getDataTaskRunner = new GetDataTaskRunner();
-            getDataTaskRunner.execute(userName, userEmail, userPublicKey, userPrivateKey);
+            runGetDataTask(userName, userEmail, userPublicKey, userPrivateKey);
         } else {
             makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR : Registration failed due to network connection unavailability!");
         }
+    }
+
+    private void runGetDataTask(String userName, String userEmail, String userPublicKey, String userPrivateKey) {
+        getDataTaskRunner = new GetDataTaskRunner();
+        getDataTaskRunner.execute(userName, userEmail, userPublicKey, userPrivateKey);
     }
 
     private void setSharedPreferencesData(String userName, String userEmail, String userPublicKey, String userPrivateKey){
@@ -144,16 +146,10 @@ public class RegisterActivity extends AppCompatActivity {
 
     private boolean validateForm(View view) {
         boolean setError = false;
-        if (!checkEmptySetError(nameField)) {
-            userName = nameField.getText().toString().trim();
-        }
-        else {
+        if (checkEmptySetError(nameField)) {
             setError = true;
         }
-        if (!checkEmptySetError(emailField) && !checkEmailSetError(emailField)) {
-            userEmail = emailField.getText().toString().trim();
-        }
-        else {
+        if (checkEmptySetError(emailField) || checkEmailSetError(emailField)) {
             setError = true;
         }
         if (!pickedPublicKeyFile && !pickedPrivateKeyFile) {
@@ -304,7 +300,7 @@ public class RegisterActivity extends AppCompatActivity {
                     break;
             case 3: makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR : Unable to retrieve data!");
                     break;
-            case 4: makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR!");
+            default: makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR!");
                     break;
         }
         if (proceed) runPostDataTask(userName, userEmail, userPublicKey, userPrivateKey);

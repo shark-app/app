@@ -24,6 +24,11 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
         setContentView(R.layout.activity_scan);
         BarcodeCapture barcodeCapture = (BarcodeCapture) getSupportFragmentManager().findFragmentById(barcode);
         barcodeCapture.setRetrieval(this);
+        barcodeCapture.setShowDrawRect(true);
+        barcodeCapture.setSupportMultipleScan(false);
+        barcodeCapture.setTouchAsCallback(true);
+        barcodeCapture.shouldAutoFocus(true);
+        barcodeCapture.setShouldShowText(true);
     }
 
     @Override
@@ -55,26 +60,8 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
     }
 
     @Override
-    public void onRetrievedMultiple(final Barcode closetToClick, final List<BarcodeGraphic> barcodeGraphics) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String message = "Code selected : " + closetToClick.displayValue + "\n\nother " +
-                        "codes in frame include : \n";
-                for (int index = 0; index < barcodeGraphics.size(); index++) {
-                    Barcode barcode = barcodeGraphics.get(index).getBarcode();
-                    message += (index + 1) + ". " + barcode.displayValue + "\n";
-                }
-                AlertDialog.Builder builder = new AlertDialog.Builder(ScanActivity.this)
-                        .setTitle("code retrieved")
-                        .setMessage(message);
-                builder.show();
-            }
-        });
-    }
+    public void onRetrievedMultiple(final Barcode closetToClick, final List<BarcodeGraphic> barcodeGraphics) {}
 
     @Override
-    public void onBitmapScanned(SparseArray<Barcode> sparseArray) {
-        // when image is scanned and processed
-    }
+    public void onBitmapScanned(SparseArray<Barcode> sparseArray) {}
 }

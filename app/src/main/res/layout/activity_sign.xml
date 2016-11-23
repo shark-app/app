@@ -29,13 +29,9 @@
             android:layout_width="@dimen/edittext_width"
             android:layout_height="wrap_content"
             android:hint="@string/name_hint"
-            app:met_baseColor="@android:color/white"
-            app:met_primaryColor="@color/colorPrimaryDark"
+            android:focusable="false"
             app:met_textColor="@color/dark_grey"
-            app:met_errorColor="@color/fbutton_color_pomegranate"
-            app:met_underlineColor="@android:color/white"
             app:met_floatingLabel="highlight"
-            app:met_textColorHint="@android:color/white"
             app:met_iconLeft="@drawable/ic_account_box_black_24dp"
             app:met_iconPadding="@dimen/standard_padding"/>
 
@@ -45,13 +41,9 @@
             android:layout_width="@dimen/edittext_width"
             android:layout_height="wrap_content"
             android:hint="@string/email_hint"
-            app:met_baseColor="@android:color/white"
-            app:met_primaryColor="@color/colorPrimaryDark"
+            android:focusable="false"
             app:met_textColor="@color/dark_grey"
-            app:met_errorColor="@color/fbutton_color_pomegranate"
-            app:met_underlineColor="@android:color/white"
             app:met_floatingLabel="highlight"
-            app:met_textColorHint="@android:color/white"
             app:met_iconLeft="@drawable/ic_email_black_24dp"
             app:met_iconPadding="@dimen/standard_padding"/>
 
@@ -61,30 +53,10 @@
             android:layout_width="@dimen/edittext_width"
             android:layout_height="wrap_content"
             android:hint="@string/scanned_public_key_hint"
-            app:met_baseColor="@android:color/white"
-            app:met_primaryColor="@color/colorPrimaryDark"
+            android:focusable="false"
             app:met_textColor="@color/dark_grey"
-            app:met_errorColor="@color/fbutton_color_pomegranate"
-            app:met_underlineColor="@android:color/white"
             app:met_floatingLabel="highlight"
-            app:met_textColorHint="@android:color/white"
             app:met_iconLeft="@drawable/ic_people_white_24dp"
-            app:met_iconPadding="@dimen/standard_padding"/>
-
-        <com.rengwuxian.materialedittext.MaterialEditText
-            android:layout_marginTop="@dimen/standard_padding"
-            android:id="@+id/scannedPrivateKeyField"
-            android:layout_width="@dimen/edittext_width"
-            android:layout_height="wrap_content"
-            android:hint="@string/scanned_private_key_hint"
-            app:met_baseColor="@android:color/white"
-            app:met_primaryColor="@color/colorPrimaryDark"
-            app:met_textColor="@color/dark_grey"
-            app:met_errorColor="@color/fbutton_color_pomegranate"
-            app:met_underlineColor="@android:color/white"
-            app:met_floatingLabel="highlight"
-            app:met_textColorHint="@android:color/white"
-            app:met_iconLeft="@drawable/ic_person_white_24dp"
             app:met_iconPadding="@dimen/standard_padding"/>
 
         <info.hoang8f.widget.FButton

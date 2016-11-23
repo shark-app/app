@@ -13,7 +13,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
@@ -143,17 +142,16 @@ public class RegisterActivity extends AppCompatActivity {
         String permission = Manifest.permission.READ_EXTERNAL_STORAGE;
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-                showError();
-            } else {
-                ActivityCompat.requestPermissions(this, new String[]{permission}, PERMISSIONS_REQUEST_CODE);
+                showError(getWindow().getDecorView().getRootView());
             }
+            ActivityCompat.requestPermissions(this, new String[]{permission}, PERMISSIONS_REQUEST_CODE);
         } else {
             openFilePicker(FILE_PICKER_REQUEST_CODE);
         }
     }
 
-    private void showError() {
-        Toast.makeText(this, "Allow external storage reading", Toast.LENGTH_SHORT).show();
+    private void showError(View view) {
+        makeSnackbar(view, "Allow external storage reading");
     }
 
     @Override
@@ -163,7 +161,8 @@ public class RegisterActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     openFilePicker(FILE_PICKER_REQUEST_CODE);
                 } else {
-                    showError();
+                    showError(getWindow().getDecorView().getRootView());
+                    checkPermissionsAndOpenFilePicker();
                 }
             }
         }

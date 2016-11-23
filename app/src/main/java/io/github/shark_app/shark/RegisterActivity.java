@@ -65,7 +65,10 @@ public class RegisterActivity extends AppCompatActivity {
     private Boolean pickedPrivateKeyFile = false;
     private ProgressDialog progressDialog;
     private SharedPreferences settings;
-
+    private String globalName;
+    private String globalEmail;
+    private String globalPublicKey;
+    private String globalPrivateKey;
     @BindView(R.id.nameField) EditText nameField;
     @BindView(R.id.emailField) EditText emailField;
     @BindView(R.id.publicKeyButton) Button publicKeyButton;
@@ -105,14 +108,12 @@ public class RegisterActivity extends AppCompatActivity {
         String userEmail = emailField.getText().toString().trim();
         String userPublicKey = getKeyFromFile(publicKeyFilePath);
         String userPrivateKey = getKeyFromFile(privateKeyFilePath);
-        n = userName;
-        e = userEmail;
-        pblk = userPublicKey;
-        prvk = userPrivateKey;
+        globalName = userName;
+        globalEmail = userEmail;
+        globalPublicKey = userPublicKey;
+        globalPrivateKey = userPrivateKey;
         uploadUserPublicData(userName, userEmail, userPublicKey);
     }
-
-    String n, e, pblk, prvk;
 
     private void uploadUserPublicData(String userName, String userEmail, String userPublicKey) {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -130,7 +131,6 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void setSharedPreferencesData(String userName, String userEmail, String userPublicKey, String userPrivateKey){
-        System.out.println("YOYOYOYOYOYOYOYOYOYOYOYOYOYOYOYOYOYO");
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(PREFS_USER_EXISTS_KEY, true);
         editor.putString(PREFS_USER_NAME, userName);
@@ -459,7 +459,7 @@ public class RegisterActivity extends AppCompatActivity {
                     makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR");
                 }
                 else {
-                    setSharedPreferencesData(n, e, pblk, prvk);
+                    setSharedPreferencesData(globalName, globalEmail, globalPublicKey, globalPrivateKey);
                     makeSnackbar(getWindow().getDecorView().getRootView(), "Registration successful!");
                 }
                 break;

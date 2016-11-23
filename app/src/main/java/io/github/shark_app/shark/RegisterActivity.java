@@ -16,7 +16,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -283,6 +282,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void postDataTaskRunner(String userName, String userEmail, String userPublicKey, String userPrivateKey) {
+        progressDialog = new ProgressDialog(RegisterActivity.this, ProgressDialog.STYLE_SPINNER);
+        progressDialog.setMessage("Verifying user");
+        progressDialog.setIndeterminate(true);
+        progressDialog.show();
+        progressDialog.setCancelable(false);
         getDataTaskRunner = new GetDataTaskRunner();
         int getDataTaskResult = 4;
         try {
@@ -318,12 +322,6 @@ public class RegisterActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(RegisterActivity.this, ProgressDialog.STYLE_SPINNER);
-            progressDialog.setMessage("Verifying user");
-            progressDialog.setIndeterminate(true);
-            progressDialog.setCancelable(false);
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.show();
         }
         @Override
         protected Integer doInBackground(String...params) {
@@ -337,11 +335,9 @@ public class RegisterActivity extends AppCompatActivity {
                 httpURLConnection.setReadTimeout(5000);
                 httpURLConnection.setRequestMethod("GET");
                 httpURLConnection.setRequestProperty("Accept", "application/json");
-                Log.d("GetData", "Trying to connect");
                 httpURLConnection.setDoInput(true);
                 httpURLConnection.connect();
                 int response = httpURLConnection.getResponseCode();
-                Log.d("GetData", "The response is: " + response);
                 inputStream = httpURLConnection.getInputStream();
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
                 String line, buffer = new String();

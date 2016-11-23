@@ -46,7 +46,7 @@
             android:layout_width="@dimen/edittext_width"
             android:layout_height="wrap_content"
             android:hint="@string/email_hint"
-            android:inputType="textEmailAddress"
+            android:inputType="textEmailAddress|textNoSuggestions"
             app:met_baseColor="@android:color/white"
             app:met_primaryColor="@color/colorPrimaryDark"
             app:met_textColor="@color/dark_grey"

@@ -26,6 +26,7 @@ repositories {
     maven {
         url "https://jitpack.io"
     }
+    mavenCentral()
 }
 
 dependencies {
@@ -42,5 +43,6 @@ dependencies {
     compile 'com.nbsp:library:1.1'
     compile 'com.github.kenglxn.QRGen:android:2.2.0'
     compile('com.github.KingsMentor:MobileVisionBarcodeScanner:v1.2') { transitive = true; }
+    compile 'com.github.paolorotolo:appintro:4.1.0'
     testCompile 'junit:junit:4.12'
 }

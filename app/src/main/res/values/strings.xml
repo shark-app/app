@@ -5,6 +5,7 @@
     <string name="share_activity_name">Share OR Code</string>
     <string name="register_activity_name">Register</string>
     <string name="scan_activity_name">Scan QR Code</string>
+    <string name="sign_activity_name">Sign Key</string>
     <string name="email_hint">Email address</string>
     <string name="name_hint">Name</string>
     <string name="public_key_hint">Select public key file</string>

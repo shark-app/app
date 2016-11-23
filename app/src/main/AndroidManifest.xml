@@ -41,7 +41,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
-        <activity android:name=".SignActivity">
+        <activity
+            android:name=".SignActivity"
+            android:label="@string/sign_activity_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
         </activity>
     </application>
 

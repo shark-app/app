@@ -3,6 +3,7 @@ package io.github.shark_app.shark;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -14,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -460,6 +462,19 @@ public class RegisterActivity extends AppCompatActivity {
                 }
                 else {
                     setSharedPreferencesData(globalName, globalEmail, globalPublicKey, globalPrivateKey);
+                    final Intent intent = new Intent(this, MainActivity.class);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this)
+                            .setTitle("Success")
+                            .setMessage("You have been successfully registered! You can access all of this application's functionality. Press OK to continue.")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            });
+                    builder.show();
                     makeSnackbar(getWindow().getDecorView().getRootView(), "Registration successful!");
                 }
                 break;

@@ -36,5 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.scanButton)
     public void scan(View view) {
+        Intent intent = new Intent(this, ScanActivity.class);
+        startActivity(intent);
     }
 }

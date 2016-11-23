@@ -22,13 +22,8 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
-        BarcodeCapture barcodeCapture = (BarcodeCapture) getSupportFragmentManager().findFragmentById(barcode);
+        final BarcodeCapture barcodeCapture = (BarcodeCapture) getSupportFragmentManager().findFragmentById(barcode);
         barcodeCapture.setRetrieval(this);
-        barcodeCapture.setShowDrawRect(true);
-        barcodeCapture.setSupportMultipleScan(false);
-        barcodeCapture.setTouchAsCallback(true);
-        barcodeCapture.shouldAutoFocus(true);
-        barcodeCapture.setShouldShowText(true);
     }
 
     @Override

@@ -63,7 +63,6 @@ public class RegisterActivity extends AppCompatActivity {
     private String postDataTaskOutput;
     private Boolean pickedPublicKeyFile = false;
     private Boolean pickedPrivateKeyFile = false;
-    private Boolean userVerfiedAndRegistered = false;
     private ProgressDialog progressDialog;
     private SharedPreferences settings;
 
@@ -106,11 +105,14 @@ public class RegisterActivity extends AppCompatActivity {
         String userEmail = emailField.getText().toString().trim();
         String userPublicKey = getKeyFromFile(publicKeyFilePath);
         String userPrivateKey = getKeyFromFile(privateKeyFilePath);
+        n = userName;
+        e = userEmail;
+        pblk = userPublicKey;
+        prvk = userPrivateKey;
         uploadUserPublicData(userName, userEmail, userPublicKey);
-        if (userVerfiedAndRegistered) {
-            setSharedPreferencesData(userName, userEmail, userPublicKey, userPrivateKey);
-        }
     }
+
+    String n, e, pblk, prvk;
 
     private void uploadUserPublicData(String userName, String userEmail, String userPublicKey) {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -128,6 +130,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void setSharedPreferencesData(String userName, String userEmail, String userPublicKey, String userPrivateKey){
+        System.out.println("YOYOYOYOYOYOYOYOYOYOYOYOYOYOYOYOYOYO");
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(PREFS_USER_EXISTS_KEY, true);
         editor.putString(PREFS_USER_NAME, userName);
@@ -278,7 +281,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(this, ShareActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
     }
@@ -456,8 +459,8 @@ public class RegisterActivity extends AppCompatActivity {
                     makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR");
                 }
                 else {
+                    setSharedPreferencesData(n, e, pblk, prvk);
                     makeSnackbar(getWindow().getDecorView().getRootView(), "Registration successful!");
-                    userVerfiedAndRegistered = true;
                 }
                 break;
             }

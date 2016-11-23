@@ -251,4 +251,11 @@ public class RegisterActivity extends AppCompatActivity {
             FILE_PICKER_REQUEST_CODE = -1;
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, ShareActivity.class);
+        startActivity(intent);
+        finish();
+    }
 }

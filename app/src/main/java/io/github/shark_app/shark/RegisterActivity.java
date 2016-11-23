@@ -60,6 +60,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Boolean pickedPrivateKeyFile = false;
     private GetDataTaskRunner getDataTaskRunner;
     private ProgressDialog progressDialog;
+    private SharedPreferences settings;
 
     @BindView(R.id.nameField) EditText nameField;
     @BindView(R.id.emailField) EditText emailField;
@@ -77,6 +78,7 @@ public class RegisterActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         nameField.clearFocus();
         emailField.clearFocus();
+        settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     }
 
     @OnClick(R.id.publicKeyButton)
@@ -107,14 +109,14 @@ public class RegisterActivity extends AppCompatActivity {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-            postDataTaskRunner(userName, userEmail, userPublicKey, userPrivateKey);
+            getDataTaskRunner = new GetDataTaskRunner();
+            getDataTaskRunner.execute(userName, userEmail, userPublicKey, userPrivateKey);
         } else {
             makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR : Registration failed due to network connection unavailability!");
         }
     }
 
     private void setSharedPreferencesData(String userName, String userEmail, String userPublicKey, String userPrivateKey){
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(PREFS_USER_EXISTS_KEY, true);
         editor.putString(PREFS_USER_NAME, userName);
@@ -281,18 +283,7 @@ public class RegisterActivity extends AppCompatActivity {
         finish();
     }
 
-    private void postDataTaskRunner(String userName, String userEmail, String userPublicKey, String userPrivateKey) {
-        progressDialog = new ProgressDialog(RegisterActivity.this, ProgressDialog.STYLE_SPINNER);
-        progressDialog.setMessage("Verifying user");
-        progressDialog.setIndeterminate(true);
-        progressDialog.show();
-        progressDialog.setCancelable(false);
-        getDataTaskRunner = new GetDataTaskRunner();
-        int getDataTaskResult = 4;
-        try {
-            getDataTaskResult = getDataTaskRunner.execute(userEmail).get();
-        }
-        catch (Exception e) {}
+    private void getDataTaskComplete(int getDataTaskResult, String userName, String userEmail, String userPublicKey, String userPrivateKey) {
         boolean proceed = false;
         switch (getDataTaskResult) {
             case 0: {
@@ -316,16 +307,29 @@ public class RegisterActivity extends AppCompatActivity {
             case 4: makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR!");
                     break;
         }
+        if (proceed) runPostDataTask(userName, userEmail, userPublicKey, userPrivateKey);
     }
 
     private class GetDataTaskRunner extends AsyncTask<String, Void, Integer> {
+        String userName;
+        String userEmail;
+        String userPublicKey;
+        String userPrivateKey;
         @Override
         protected void onPreExecute() {
+            progressDialog = new ProgressDialog(RegisterActivity.this, ProgressDialog.STYLE_SPINNER);
+            progressDialog.setMessage("Verifying user");
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
             super.onPreExecute();
         }
         @Override
         protected Integer doInBackground(String...params) {
-            String userEmail = params[0];
+            userName = params[0];
+            userEmail = params[1];
+            userPublicKey = params[2];
+            userPrivateKey = params[3];
             InputStream inputStream = null;
             try {
                 String getUrl = "http://192.168.55.157:3000/email/userDetails" + "/" + userEmail;
@@ -367,6 +371,11 @@ public class RegisterActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Integer result) {
             progressDialog.dismiss();
+            getDataTaskComplete(result, userName, userEmail, userPublicKey, userPrivateKey);
         }
+    }
+
+    private void runPostDataTask(String userName, String userEmail, String userPublicKey, String userPrivateKey) {
+        makeSnackbar(getWindow().getDecorView().getRootView(), "Yes I'm here!");
     }
 }

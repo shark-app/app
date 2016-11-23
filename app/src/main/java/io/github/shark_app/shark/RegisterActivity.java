@@ -23,12 +23,18 @@ import android.widget.EditText;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -54,9 +60,10 @@ public class RegisterActivity extends AppCompatActivity {
     public String publicKeyFilePath;
     public String privateKeyFilePath;
     private String getDataTaskOutput;
+    private String postDataTaskOutput;
     private Boolean pickedPublicKeyFile = false;
     private Boolean pickedPrivateKeyFile = false;
-    private GetDataTaskRunner getDataTaskRunner;
+    private Boolean userVerfiedAndRegistered = false;
     private ProgressDialog progressDialog;
     private SharedPreferences settings;
 
@@ -99,23 +106,25 @@ public class RegisterActivity extends AppCompatActivity {
         String userEmail = emailField.getText().toString().trim();
         String userPublicKey = getKeyFromFile(publicKeyFilePath);
         String userPrivateKey = getKeyFromFile(privateKeyFilePath);
-        uploadUserPublicData(userName, userEmail, userPublicKey, userPrivateKey);
-        setSharedPreferencesData(userName, userEmail, userPublicKey, userPrivateKey);
+        uploadUserPublicData(userName, userEmail, userPublicKey);
+        if (userVerfiedAndRegistered) {
+            setSharedPreferencesData(userName, userEmail, userPublicKey, userPrivateKey);
+        }
     }
 
-    private void uploadUserPublicData(String userName, String userEmail, String userPublicKey, String userPrivateKey) {
+    private void uploadUserPublicData(String userName, String userEmail, String userPublicKey) {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-            runGetDataTask(userName, userEmail, userPublicKey, userPrivateKey);
+            runGetDataTask(userName, userEmail, userPublicKey);
         } else {
             makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR : Registration failed due to network connection unavailability!");
         }
     }
 
-    private void runGetDataTask(String userName, String userEmail, String userPublicKey, String userPrivateKey) {
-        getDataTaskRunner = new GetDataTaskRunner();
-        getDataTaskRunner.execute(userName, userEmail, userPublicKey, userPrivateKey);
+    private void runGetDataTask(String userName, String userEmail, String userPublicKey) {
+        GetDataTaskRunner getDataTaskRunner = new GetDataTaskRunner();
+        getDataTaskRunner.execute(userName, userEmail, userPublicKey);
     }
 
     private void setSharedPreferencesData(String userName, String userEmail, String userPublicKey, String userPrivateKey){
@@ -125,12 +134,12 @@ public class RegisterActivity extends AppCompatActivity {
         editor.putString(PREFS_USER_EMAIL, userEmail);
         editor.putString(PREFS_USER_PUBLIC_KEY, userPublicKey);
         editor.putString(PREFS_USER_PRIVATE_KEY, userPrivateKey);
-        editor.commit();
+        editor.apply();
     }
 
     private String getKeyFromFile(String path){
         String line;
-        String data = new String();
+        String data = "";
         try {
             File file = new File(path);
             FileInputStream fileInputStream = new FileInputStream(file);
@@ -140,7 +149,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
             bufferedReader.close();
         }
-        catch (IOException e) {}
+        catch (IOException e) {e.printStackTrace();}
         return data;
     }
 
@@ -279,13 +288,12 @@ public class RegisterActivity extends AppCompatActivity {
         finish();
     }
 
-    private void getDataTaskComplete(int getDataTaskResult, String userName, String userEmail, String userPublicKey, String userPrivateKey) {
+    private void getDataTaskComplete(int getDataTaskResult, String userName, String userEmail, String userPublicKey) {
         boolean proceed = false;
         switch (getDataTaskResult) {
             case 0: {
                 if (!getDataTaskOutput.equals("")) {
-                        String error = new String("Email address already in-use!");
-                        makeSnackbar(getWindow().getDecorView().getRootView(), error);
+                        makeSnackbar(getWindow().getDecorView().getRootView(), "Email address already in-use!");
                         emailField.setError("Please use a different email address");
                 }
                 else {
@@ -303,14 +311,13 @@ public class RegisterActivity extends AppCompatActivity {
             default: makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR!");
                     break;
         }
-        if (proceed) runPostDataTask(userName, userEmail, userPublicKey, userPrivateKey);
+        if (proceed) runPostDataTask(userName, userEmail, userPublicKey);
     }
 
     private class GetDataTaskRunner extends AsyncTask<String, Void, Integer> {
         String userName;
         String userEmail;
         String userPublicKey;
-        String userPrivateKey;
         @Override
         protected void onPreExecute() {
             progressDialog = new ProgressDialog(RegisterActivity.this, ProgressDialog.STYLE_SPINNER);
@@ -325,7 +332,6 @@ public class RegisterActivity extends AppCompatActivity {
             userName = params[0];
             userEmail = params[1];
             userPublicKey = params[2];
-            userPrivateKey = params[3];
             InputStream inputStream = null;
             try {
                 String getUrl = "http://192.168.55.157:3000/email/userDetails" + "/" + userEmail;
@@ -337,10 +343,10 @@ public class RegisterActivity extends AppCompatActivity {
                 httpURLConnection.setRequestProperty("Accept", "application/json");
                 httpURLConnection.setDoInput(true);
                 httpURLConnection.connect();
-                int response = httpURLConnection.getResponseCode();
                 inputStream = httpURLConnection.getInputStream();
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-                String line, buffer = new String();
+                String line;
+                String buffer = "";
                 while ((line = bufferedReader.readLine()) != null) {
                     buffer += line;
                     buffer += "\n";
@@ -367,11 +373,107 @@ public class RegisterActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Integer result) {
             progressDialog.dismiss();
-            getDataTaskComplete(result, userName, userEmail, userPublicKey, userPrivateKey);
+            getDataTaskComplete(result, userName, userEmail, userPublicKey);
         }
     }
 
-    private void runPostDataTask(String userName, String userEmail, String userPublicKey, String userPrivateKey) {
-        makeSnackbar(getWindow().getDecorView().getRootView(), "Yes I'm here!");
+    private void runPostDataTask(String userName, String userEmail, String userPublicKey) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("name", userName);
+            jsonObject.put("email", userEmail);
+            jsonObject.put("publickey", userPublicKey);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        PostDataTaskRunner postDataTaskRunner = new PostDataTaskRunner();
+        postDataTaskRunner.execute(String.valueOf(jsonObject));
+    }
+
+    private class PostDataTaskRunner extends AsyncTask<String, Void, Integer> {
+        @Override
+        protected void onPreExecute() {
+            progressDialog = new ProgressDialog(RegisterActivity.this, ProgressDialog.STYLE_SPINNER);
+            progressDialog.setTitle(R.string.app_name);
+            progressDialog.setMessage("Registering user");
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+            super.onPreExecute();
+        }
+        @Override
+        protected Integer doInBackground(String...params) {
+            String jsonData = params[0];
+            InputStream inputStream = null;
+            try {
+                String postUrl = "http://192.168.55.157:3000/userDetails";
+                URL url = new URL(postUrl);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setConnectTimeout(7000);
+                httpURLConnection.setReadTimeout(5000);
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setRequestProperty("Content-type", "application/json");
+                httpURLConnection.setRequestProperty("Accept", "application/json");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                Writer writer = new BufferedWriter(new OutputStreamWriter(httpURLConnection.getOutputStream(), "UTF-8"));
+                writer.write(jsonData);
+                writer.close();
+                inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+                String line;
+                String buffer = "";
+                while ((line = bufferedReader.readLine()) != null) {
+                    buffer += line;
+                    buffer += "\n";
+                }
+                httpURLConnection.disconnect();
+                bufferedReader.close();
+                postDataTaskOutput = buffer;
+                System.out.println(buffer);
+                return 0;
+            } catch (SocketTimeoutException e) {
+                return 1;
+            } catch (IOException e) {
+                return 2;
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    }
+                    catch (IOException e) {
+                        return 3;
+                    }
+                }
+            }
+        }
+        @Override
+        protected void onPostExecute(Integer result) {
+            progressDialog.dismiss();
+            postDataTaskComplete(result);
+        }
+    }
+
+    private void postDataTaskComplete(int postDataTaskResult){
+        switch (postDataTaskResult) {
+            case 0: {
+                if (postDataTaskOutput.equals("")) {
+                    makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR");
+                }
+                else {
+                    makeSnackbar(getWindow().getDecorView().getRootView(), "Registration successful!");
+                    userVerfiedAndRegistered = true;
+                }
+                break;
+            }
+            case 1: makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR : Connection timed out!");
+                break;
+            case 2: makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR : Unable to retrieve data!");
+                break;
+            case 3: makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR : Unable to retrieve data!");
+                break;
+            default: makeSnackbar(getWindow().getDecorView().getRootView(), "ERROR!");
+                break;
+        }
     }
 }

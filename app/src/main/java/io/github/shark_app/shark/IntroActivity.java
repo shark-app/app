@@ -28,10 +28,10 @@ public class IntroActivity extends AppIntro {
     @BindString(R.string.slide2description) String slide2description;
     @BindString(R.string.slide3description) String slide3description;
     @BindString(R.string.slide4description) String slide4description;
-    int slide1image = R.drawable.ic_lock_white_24dp;
-    int slide2image = R.drawable.ic_lock_white_24dp;
-    int slide3image = R.drawable.ic_lock_white_24dp;
-    int slide4image = R.drawable.ic_lock_white_24dp;
+    int slide1image = R.drawable.slide1image;
+    int slide2image = R.drawable.slide23image;
+    int slide3image = R.drawable.slide23image;
+    int slide4image = R.drawable.slide4image;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

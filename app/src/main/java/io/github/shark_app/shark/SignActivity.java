@@ -3,30 +3,65 @@ package io.github.shark_app.shark;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import org.json.JSONObject;
+import org.spongycastle.bcpg.ArmoredOutputStream;
+import org.spongycastle.bcpg.BCPGOutputStream;
+import org.spongycastle.openpgp.PGPPrivateKey;
+import org.spongycastle.openpgp.PGPPublicKey;
+import org.spongycastle.openpgp.PGPSecretKey;
+import org.spongycastle.openpgp.PGPSignature;
+import org.spongycastle.openpgp.PGPSignatureGenerator;
+import org.spongycastle.openpgp.PGPSignatureSubpacketGenerator;
+import org.spongycastle.openpgp.PGPSignatureSubpacketVector;
+import org.spongycastle.openpgp.PGPUtil;
+import org.spongycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder;
+import org.spongycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
+import org.spongycastle.util.Arrays;
+import org.spongycastle.util.encoders.Base64;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Iterator;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static io.github.shark_app.shark.MainActivity.PREFS_NAME;
+import static io.github.shark_app.shark.MainActivity.PREFS_USER_EMAIL;
+import static io.github.shark_app.shark.MainActivity.PREFS_USER_NAME;
+import static io.github.shark_app.shark.MainActivity.PREFS_USER_PRIVATE_KEY;
+import static io.github.shark_app.shark.MainActivity.PREFS_USER_PUBLIC_KEY;
+
 public class SignActivity extends AppCompatActivity {
+    static {
+        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+    }
+
     @BindView(R.id.scannedNameField) TextView scannedNameField;
     @BindView(R.id.scannedEmailField) TextView scannedEmailField;
     @BindView(R.id.scannedPublicKeyField) TextView scannedPublicKeyField;
@@ -37,13 +72,22 @@ public class SignActivity extends AppCompatActivity {
     private String scannedUserName;
     private String scannedUserEmail;
     private String scannedUserPublicKey;
-
+    private String currentUserName;
+    private String currentUserEmail;
+    private String currentUserPublicKey;
+    private String currentUserPrivateKey;
+    private SharedPreferences settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign);
         ButterKnife.bind(this);
+        settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        currentUserName = settings.getString(PREFS_USER_NAME, null);
+        currentUserEmail = settings.getString(PREFS_USER_EMAIL, null);
+        currentUserPublicKey = settings.getString(PREFS_USER_PUBLIC_KEY, null);
+        currentUserPrivateKey = settings.getString(PREFS_USER_PRIVATE_KEY, null);
         Intent intent = getIntent();
         String scannedUserEmail = intent.getStringExtra("qrCodeValue");
         getScannedUserPublicData(scannedUserEmail);
@@ -74,9 +118,7 @@ public class SignActivity extends AppCompatActivity {
     }
 
     private class GetDataTaskRunner extends AsyncTask<String, Void, Integer> {
-        String userName;
         String userEmail;
-        String userPublicKey;
         @Override
         protected void onPreExecute() {
             progressDialog = new ProgressDialog(SignActivity.this, ProgressDialog.STYLE_SPINNER);
@@ -160,7 +202,86 @@ public class SignActivity extends AppCompatActivity {
             default: makeSnackbar("ERROR!");
                 break;
         }
-        if (proceed) makeSnackbar("TIME TO SIGN!!!");
+        if (proceed) {
+            makeSnackbar("TIME TO SIGN!!!");
+            try {
+                PGPPublicKey keyToBeSigned = (PGPPublicKey) getRSAPublicKeyFromString(scannedUserPublicKey);
+                Log.d("keyToBeSigned 1", scannedUserPublicKey.substring(0, 2000));
+                Log.d("keyToBeSigned 2", scannedUserPublicKey.substring(2000));
+                PGPSecretKey secretKey = (PGPSecretKey) getRSAPrivateKeyFromString(currentUserPrivateKey);
+                String returnedSignedKey = signPublicKey(secretKey, "sahil", keyToBeSigned, "TEST", "true", true).toString();
+                PGPPublicKey keyAfterSigning = (PGPPublicKey) getRSAPublicKeyFromString(returnedSignedKey);
+                Log.d("keyAfterSigning 1", returnedSignedKey.substring(0, 2000));
+                Log.d("keyAfterSigning 2", returnedSignedKey.substring(2000));
+                printCertifications(keyAfterSigning);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void printCertifications(PGPPublicKey pubKey) {
+        Iterator<PGPSignature> sigIter = pubKey.getSignatures();
+        while(sigIter.hasNext()) {
+            PGPSignature pgpSig = sigIter.next();
+            long keyId = pgpSig.getKeyID();
+            Log.d("keyID certifications", Long.toHexString(keyId).toUpperCase());
+        }
+    }
+
+    private static String stripPublicKeyHeaders(String publicKey) {
+        publicKey = publicKey.replace("-----BEGIN PGP PUBLIC KEY BLOCK-----", "");
+        publicKey = publicKey.replace("-----END PGP PUBLIC KEY BLOCK----", "");
+        return publicKey;
+
+    }
+
+    private static String stripPrivateKeyHeaders(String privateKey) {
+        privateKey = privateKey.replace("-----BEGIN PGP PRIVATE KEY BLOCK-----", "");
+        privateKey = privateKey.replace("-----END PGP PRIVATE KEY BLOCK----", "");
+        return privateKey;
+
+    }
+
+    public static PublicKey getRSAPublicKeyFromString(String publicKeyPEM) throws Exception {
+        publicKeyPEM = stripPublicKeyHeaders(publicKeyPEM);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA", "SC");
+        byte[] publicKeyBytes = Base64.decode(publicKeyPEM.getBytes("ASCII"));
+        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(publicKeyBytes);
+        return keyFactory.generatePublic(x509KeySpec);
+    }
+
+    private static PrivateKey getRSAPrivateKeyFromString(String privateKeyPEM) throws Exception {
+        privateKeyPEM = stripPrivateKeyHeaders(privateKeyPEM);
+        KeyFactory fact = KeyFactory.getInstance("RSA", "SC");
+        byte[] clear = Base64.decode(privateKeyPEM);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(clear);
+        PrivateKey priv = fact.generatePrivate(keySpec);
+        Arrays.fill(clear, (byte) 0);
+        return priv;
+    }
+
+    private static byte[] signPublicKey(PGPSecretKey secretKey, String secretKeyPass, PGPPublicKey keyToBeSigned, String notationName, String notationValue, boolean armor) throws Exception {
+        OutputStream out = new ByteArrayOutputStream();
+        if (armor) {
+            out = new ArmoredOutputStream(out);
+        }
+        PGPPrivateKey pgpPrivKey = secretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder().setProvider("SC").build(secretKeyPass.toCharArray()));
+        PGPSignatureGenerator       sGen = new PGPSignatureGenerator(new JcaPGPContentSignerBuilder(secretKey.getPublicKey().getAlgorithm(), PGPUtil.SHA1).setProvider("SC"));
+        sGen.init(PGPSignature.DIRECT_KEY, pgpPrivKey);
+        BCPGOutputStream bOut = new BCPGOutputStream(out);
+        sGen.generateOnePassVersion(false).encode(bOut);
+        PGPSignatureSubpacketGenerator spGen = new PGPSignatureSubpacketGenerator();
+        boolean isHumanReadable = true;
+        spGen.setNotationData(true, isHumanReadable, notationName, notationValue);
+        PGPSignatureSubpacketVector packetVector = spGen.generate();
+        sGen.setHashedSubpackets(packetVector);
+        bOut.flush();
+        if (armor) {
+            out.close();
+        }
+        return PGPPublicKey.addCertification(keyToBeSigned, sGen.generate()).getEncoded();
     }
 
     @Override

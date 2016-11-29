@@ -146,6 +146,7 @@ public class SignActivity extends AppCompatActivity {
                     scannedEmailField.setText(scannedUserEmail);
                     scannedNameField.setText(scannedUserName);
                     scannedPublicKeyField.setText(scannedUserPublicKey);
+                    proceed = true;
                 }
                 catch (Exception e) {}
                 break;

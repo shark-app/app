@@ -21,4 +21,6 @@
     <string name="slide3description">Also, we use your device\'s Internet connection in order to store/retrieve public keys on our server.</string>
     <string name="slide4title">Let\'s get started!</string>
     <string name="slide4description">Press DONE to proceed.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

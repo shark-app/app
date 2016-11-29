@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -54,10 +53,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static io.github.shark_app.shark.MainActivity.PREFS_NAME;
-import static io.github.shark_app.shark.MainActivity.PREFS_USER_EMAIL;
-import static io.github.shark_app.shark.MainActivity.PREFS_USER_NAME;
 import static io.github.shark_app.shark.MainActivity.PREFS_USER_PRIVATE_KEY;
-import static io.github.shark_app.shark.MainActivity.PREFS_USER_PUBLIC_KEY;
 
 public class SignActivity extends AppCompatActivity {
     static {
@@ -74,21 +70,14 @@ public class SignActivity extends AppCompatActivity {
     private String scannedUserName;
     private String scannedUserEmail;
     private String scannedUserPublicKey;
-    private String currentUserName;
-    private String currentUserEmail;
-    private String currentUserPublicKey;
     private String currentUserPrivateKey;
-    private SharedPreferences settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign);
         ButterKnife.bind(this);
-        settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        currentUserName = settings.getString(PREFS_USER_NAME, null);
-        currentUserEmail = settings.getString(PREFS_USER_EMAIL, null);
-        currentUserPublicKey = settings.getString(PREFS_USER_PUBLIC_KEY, null);
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         currentUserPrivateKey = settings.getString(PREFS_USER_PRIVATE_KEY, null);
         Intent intent = getIntent();
         String scannedUserEmail = intent.getStringExtra("qrCodeValue");
@@ -192,7 +181,9 @@ public class SignActivity extends AppCompatActivity {
                     scannedPublicKeyField.setText(scannedUserPublicKey);
                     proceed = true;
                 }
-                catch (Exception e) {}
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
             }
             case 1: makeSnackbar("ERROR : Connection timed out!");
@@ -205,31 +196,20 @@ public class SignActivity extends AppCompatActivity {
                 break;
         }
         if (proceed) {
-            makeSnackbar("TIME TO SIGN!!!");
             try {
                 PGPPublicKey keyToBeSigned = getPublicKeyFromString(scannedUserPublicKey);
-                Log.d("keyToBeSigned 1", keyToBeSigned.toString());
-                Log.d("keyToBeSigned 2", keyToBeSigned.toString());
                 PGPSecretKey secretKey = getSecretKeyFromString(currentUserPrivateKey);
-                Log.d("signingKey 1", secretKey.toString());
-                Log.d("signingKey 2", secretKey.toString());
-                //String returnedSignedKey = signPublicKey(secretKey, "sahil", keyToBeSigned, "TEST", "true", true).toString();
-                //PGPPublicKey keyAfterSigning = getPublicKeyFromString(returnedSignedKey);
-                //Log.d("keyAfterSigning 1", keyAfterSigning.toString());
-                //Log.d("keyAfterSigning 2", keyAfterSigning.toString());
-
-                PGPPublicKeyRing sRing = new PGPPublicKeyRing(
+                PGPPublicKeyRing signedRing = new PGPPublicKeyRing(
                         new ByteArrayInputStream(signPublicKey(secretKey, "sahil", keyToBeSigned, "TEST", "true", true)), new JcaKeyFingerprintCalculator());
-                PGPPublicKeyRing ring = sRing;
-
                 File sdcard = Environment.getExternalStorageDirectory();
-                File dir = new File(sdcard.getAbsolutePath() + "/Signed_Keys/");
-                dir.mkdir();
-                File file = new File(dir, "SignedKey.asc");
-                ArmoredOutputStream out = new ArmoredOutputStream(new FileOutputStream(file));
-                sRing.encode(out);
-                out.flush();
-                out.close();
+                File directory = new File(sdcard.getAbsolutePath() + "/Signed_Keys/");
+                directory.mkdir();
+                String filename = scannedUserName + ".asc";
+                File file = new File(directory, filename);
+                ArmoredOutputStream armoredOutputStream = new ArmoredOutputStream(new FileOutputStream(file));
+                signedRing.encode(armoredOutputStream);
+                armoredOutputStream.flush();
+                armoredOutputStream.close();
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -237,40 +217,38 @@ public class SignActivity extends AppCompatActivity {
         }
     }
 
-    public static PGPPublicKey getPublicKeyFromString(String str) throws Exception{
-        InputStream in=new ByteArrayInputStream(str.getBytes());
-        in = org.spongycastle.openpgp.PGPUtil.getDecoderStream(in);
-        JcaPGPPublicKeyRingCollection pgpPub = new JcaPGPPublicKeyRingCollection(in);
-        in.close();
-        PGPPublicKey key = null;
-        Iterator<PGPPublicKeyRing> rIt = pgpPub.getKeyRings();
-        while (key == null && rIt.hasNext()) {
-            PGPPublicKeyRing kRing = rIt.next();
-            Iterator<PGPPublicKey> kIt = kRing.getPublicKeys();
-            while (key == null && kIt.hasNext()) {
-                PGPPublicKey k = kIt.next();
-                key = k;
+    public static PGPPublicKey getPublicKeyFromString(String str) throws Exception {
+        InputStream inputStream = new ByteArrayInputStream(str.getBytes());
+        inputStream = org.spongycastle.openpgp.PGPUtil.getDecoderStream(inputStream);
+        JcaPGPPublicKeyRingCollection jcaPGPPublicKeyRingCollection = new JcaPGPPublicKeyRingCollection(inputStream);
+        inputStream.close();
+        PGPPublicKey pgpPublicKey = null;
+        Iterator<PGPPublicKeyRing> iterator = jcaPGPPublicKeyRingCollection.getKeyRings();
+        while (pgpPublicKey == null && iterator.hasNext()) {
+            PGPPublicKeyRing kRing = iterator.next();
+            Iterator<PGPPublicKey> iteratorKey = kRing.getPublicKeys();
+            while (pgpPublicKey == null && iteratorKey.hasNext()) {
+                pgpPublicKey = iteratorKey.next();
             }
         }
-        return key;
+        return pgpPublicKey;
     }
 
     public static PGPSecretKey getSecretKeyFromString(String str) throws Exception{
-        InputStream in = new ByteArrayInputStream(str.getBytes());
-        in = org.spongycastle.openpgp.PGPUtil.getDecoderStream(in);
-        JcaPGPSecretKeyRingCollection pgpPriv = new JcaPGPSecretKeyRingCollection(in);
-        in.close();
-        PGPSecretKey key = null;
-        Iterator<PGPSecretKeyRing> rIt = pgpPriv.getKeyRings();
-        while (key == null && rIt.hasNext()) {
-            PGPSecretKeyRing kRing = rIt.next();
-            Iterator<PGPSecretKey> kIt = kRing.getSecretKeys();
-            while (key == null && kIt.hasNext()) {
-                PGPSecretKey k = kIt.next();
-                key = k;
+        InputStream inputStream = new ByteArrayInputStream(str.getBytes());
+        inputStream = org.spongycastle.openpgp.PGPUtil.getDecoderStream(inputStream);
+        JcaPGPSecretKeyRingCollection jcaPGPSecretKeyRingCollection = new JcaPGPSecretKeyRingCollection(inputStream);
+        inputStream.close();
+        PGPSecretKey pgpSecretKey = null;
+        Iterator<PGPSecretKeyRing> iterator = jcaPGPSecretKeyRingCollection.getKeyRings();
+        while (pgpSecretKey == null && iterator.hasNext()) {
+            PGPSecretKeyRing kRing = iterator.next();
+            Iterator<PGPSecretKey> iteratorKey = kRing.getSecretKeys();
+            while (pgpSecretKey == null && iteratorKey.hasNext()) {
+                pgpSecretKey = iteratorKey.next();
             }
         }
-        return key;
+        return pgpSecretKey;
     }
 
     private static byte[] signPublicKey(PGPSecretKey secretKey, String secretKeyPass, PGPPublicKey keyToBeSigned, String notationName, String notationValue, boolean armor) throws Exception {
@@ -284,8 +262,7 @@ public class SignActivity extends AppCompatActivity {
         BCPGOutputStream bOut = new BCPGOutputStream(out);
         sGen.generateOnePassVersion(false).encode(bOut);
         PGPSignatureSubpacketGenerator spGen = new PGPSignatureSubpacketGenerator();
-        boolean isHumanReadable = true;
-        spGen.setNotationData(true, isHumanReadable, notationName, notationValue);
+        spGen.setNotationData(true, true, notationName, notationValue);
         PGPSignatureSubpacketVector packetVector = spGen.generate();
         sGen.setHashedSubpackets(packetVector);
         bOut.flush();

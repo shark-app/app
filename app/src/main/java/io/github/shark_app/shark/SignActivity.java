@@ -185,6 +185,9 @@ public class SignActivity extends AppCompatActivity {
                     scannedPublicKeyField.setText(String.valueOf(pgpPublicKey.getKeyID()));
                     proceed = true;
                 }
+                catch (PGPException p) {
+                    makeAlertDialog("PGP error", "The application encountered an error. The public key returned by scanning is not valid. Press OK to scan again.");
+                }
                 catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -216,19 +219,7 @@ public class SignActivity extends AppCompatActivity {
                 armoredOutputStream.close();
             }
             catch (PGPException p) {
-                final Intent intent = new Intent(this, ScanActivity.class);
-                AlertDialog.Builder builder = new AlertDialog.Builder(SignActivity.this)
-                        .setTitle("PGP error")
-                        .setMessage("The application encountered an error. Please check the public/private keys involved in signing and the private key passphrase that was entered. Press OK to scan again.")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                startActivity(intent);
-                                finish();
-                            }
-                        });
-                builder.show();
+                makeAlertDialog("PGP error", "The application encountered an error. Please check the private key involved in signing and the private key passphrase that was entered. Press OK to scan again.");
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -289,6 +280,22 @@ public class SignActivity extends AppCompatActivity {
             outputStream.close();
         }
         return PGPPublicKey.addCertification(keyToBeSigned, pgpSignatureGenerator.generate()).getEncoded();
+    }
+
+    private void makeAlertDialog(String title, String message) {
+        final Intent intent = new Intent(this, ScanActivity.class);
+        AlertDialog.Builder builder = new AlertDialog.Builder(SignActivity.this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+        builder.show();
     }
 
     @Override

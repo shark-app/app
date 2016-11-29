@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences settings;
     private static final int PERMISSIONS_CAMERA = 1;
     private static final int PERMISSIONS_STORAGE = 2;
+    private static Class<?> activityToStart;
 
     @BindView(R.id.shareButton) Button shareButton;
     @BindView(R.id.scanButton) Button scanButton;
@@ -53,14 +54,14 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.shareButton)
     public void share(View view) {
+        activityToStart = ShareActivity.class;
         checkCameraPermission();
-        startAppropriateActivityAfterUserExistsCheck(this, RegisterActivity.class, ShareActivity.class);
     }
 
     @OnClick(R.id.scanButton)
     public void scan(View view) {
+        activityToStart = ScanActivity.class;
         checkCameraPermission();
-        startAppropriateActivityAfterUserExistsCheck(this, RegisterActivity.class, ScanActivity.class);
     }
 
     private void startAppropriateActivityAfterUserExistsCheck(Context context, Class<?> one, Class<?> two){
@@ -117,6 +118,9 @@ public class MainActivity extends AppCompatActivity {
             }
             ActivityCompat.requestPermissions(this, new String[]{permission}, PERMISSIONS_STORAGE);
         }
+        else {
+            startAppropriateActivityAfterUserExistsCheck(this, RegisterActivity.class, activityToStart);
+        }
     }
 
     @Override
@@ -131,7 +135,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             case PERMISSIONS_STORAGE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {}
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startAppropriateActivityAfterUserExistsCheck(this, RegisterActivity.class, ScanActivity.class);
+                }
                 else {
                     makeAlertDialog("Error!", "The application cannot continue without access to the device storage. Press OK to exit.");
                 }

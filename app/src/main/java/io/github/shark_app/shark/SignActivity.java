@@ -2,6 +2,7 @@ package io.github.shark_app.shark;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -10,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 import org.json.JSONObject;
 import org.spongycastle.bcpg.ArmoredOutputStream;
 import org.spongycastle.bcpg.BCPGOutputStream;
+import org.spongycastle.openpgp.PGPException;
 import org.spongycastle.openpgp.PGPPrivateKey;
 import org.spongycastle.openpgp.PGPPublicKey;
 import org.spongycastle.openpgp.PGPPublicKeyRing;
@@ -200,7 +203,7 @@ public class SignActivity extends AppCompatActivity {
                 PGPPublicKey keyToBeSigned = getPublicKeyFromString(scannedUserPublicKey);
                 PGPSecretKey secretKey = getSecretKeyFromString(currentUserPrivateKey);
                 PGPPublicKeyRing signedRing = new PGPPublicKeyRing(
-                        new ByteArrayInputStream(signPublicKey(secretKey, "sahil", keyToBeSigned, "TEST", "true", true)), new JcaKeyFingerprintCalculator());
+                        new ByteArrayInputStream(signPublicKey(secretKey, "sahi", keyToBeSigned, "TEST", "true", true)), new JcaKeyFingerprintCalculator());
                 File sdcard = Environment.getExternalStorageDirectory();
                 File directory = new File(sdcard.getAbsolutePath() + "/Signed_Keys/");
                 directory.mkdir();
@@ -210,6 +213,21 @@ public class SignActivity extends AppCompatActivity {
                 signedRing.encode(armoredOutputStream);
                 armoredOutputStream.flush();
                 armoredOutputStream.close();
+            }
+            catch (PGPException p) {
+                final Intent intent = new Intent(this, ScanActivity.class);
+                AlertDialog.Builder builder = new AlertDialog.Builder(SignActivity.this)
+                        .setTitle("PGP error")
+                        .setMessage("The application encountered an error. Please check the public/private keys involved in signing and the private key passphrase that was entered. Press OK to scan again.")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
+                builder.show();
             }
             catch (Exception e) {
                 e.printStackTrace();

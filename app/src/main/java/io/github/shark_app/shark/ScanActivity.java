@@ -26,6 +26,7 @@ import static io.github.shark_app.shark.R.id.barcode;
 public class ScanActivity extends AppCompatActivity implements BarcodeRetriever {
     private static final String TAG = "CAMERA";
     private static final int PERMISSIONS_CAMERA = 1;
+    private static final int PERMISSIONS_STORAGE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +88,16 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
             }
             ActivityCompat.requestPermissions(this, new String[]{permission}, PERMISSIONS_CAMERA);
         } else {
-            instantiateBarcodeScanner();
+            permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+                    makeSnackbar("Allow access to storage");
+                }
+                ActivityCompat.requestPermissions(this, new String[]{permission}, PERMISSIONS_STORAGE);
+            }
+            else {
+                instantiateBarcodeScanner();
+            }
         }
     }
 

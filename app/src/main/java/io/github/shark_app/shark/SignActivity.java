@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,19 +21,25 @@ import org.spongycastle.bcpg.ArmoredOutputStream;
 import org.spongycastle.bcpg.BCPGOutputStream;
 import org.spongycastle.openpgp.PGPPrivateKey;
 import org.spongycastle.openpgp.PGPPublicKey;
+import org.spongycastle.openpgp.PGPPublicKeyRing;
 import org.spongycastle.openpgp.PGPSecretKey;
+import org.spongycastle.openpgp.PGPSecretKeyRing;
 import org.spongycastle.openpgp.PGPSignature;
 import org.spongycastle.openpgp.PGPSignatureGenerator;
 import org.spongycastle.openpgp.PGPSignatureSubpacketGenerator;
 import org.spongycastle.openpgp.PGPSignatureSubpacketVector;
 import org.spongycastle.openpgp.PGPUtil;
+import org.spongycastle.openpgp.jcajce.JcaPGPPublicKeyRingCollection;
+import org.spongycastle.openpgp.jcajce.JcaPGPSecretKeyRingCollection;
+import org.spongycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator;
 import org.spongycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder;
 import org.spongycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
-import org.spongycastle.util.Arrays;
-import org.spongycastle.util.encoders.Base64;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,12 +47,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.Security;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Iterator;
 
 import butterknife.BindView;
@@ -205,15 +207,29 @@ public class SignActivity extends AppCompatActivity {
         if (proceed) {
             makeSnackbar("TIME TO SIGN!!!");
             try {
-                PGPPublicKey keyToBeSigned = (PGPPublicKey) getRSAPublicKeyFromString(scannedUserPublicKey);
-                Log.d("keyToBeSigned 1", scannedUserPublicKey.substring(0, 2000));
-                Log.d("keyToBeSigned 2", scannedUserPublicKey.substring(2000));
-                PGPSecretKey secretKey = (PGPSecretKey) getRSAPrivateKeyFromString(currentUserPrivateKey);
-                String returnedSignedKey = signPublicKey(secretKey, "sahil", keyToBeSigned, "TEST", "true", true).toString();
-                PGPPublicKey keyAfterSigning = (PGPPublicKey) getRSAPublicKeyFromString(returnedSignedKey);
-                Log.d("keyAfterSigning 1", returnedSignedKey.substring(0, 2000));
-                Log.d("keyAfterSigning 2", returnedSignedKey.substring(2000));
-                printCertifications(keyAfterSigning);
+                PGPPublicKey keyToBeSigned = getPublicKeyFromString(scannedUserPublicKey);
+                Log.d("keyToBeSigned 1", keyToBeSigned.toString());
+                Log.d("keyToBeSigned 2", keyToBeSigned.toString());
+                PGPSecretKey secretKey = getSecretKeyFromString(currentUserPrivateKey);
+                Log.d("signingKey 1", secretKey.toString());
+                Log.d("signingKey 2", secretKey.toString());
+                //String returnedSignedKey = signPublicKey(secretKey, "sahil", keyToBeSigned, "TEST", "true", true).toString();
+                //PGPPublicKey keyAfterSigning = getPublicKeyFromString(returnedSignedKey);
+                //Log.d("keyAfterSigning 1", keyAfterSigning.toString());
+                //Log.d("keyAfterSigning 2", keyAfterSigning.toString());
+
+                PGPPublicKeyRing sRing = new PGPPublicKeyRing(
+                        new ByteArrayInputStream(signPublicKey(secretKey, "sahil", keyToBeSigned, "TEST", "true", true)), new JcaKeyFingerprintCalculator());
+                PGPPublicKeyRing ring = sRing;
+
+                File sdcard = Environment.getExternalStorageDirectory();
+                File dir = new File(sdcard.getAbsolutePath() + "/Signed_Keys/");
+                dir.mkdir();
+                File file = new File(dir, "SignedKey.asc");
+                ArmoredOutputStream out = new ArmoredOutputStream(new FileOutputStream(file));
+                sRing.encode(out);
+                out.flush();
+                out.close();
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -221,45 +237,40 @@ public class SignActivity extends AppCompatActivity {
         }
     }
 
-    private static void printCertifications(PGPPublicKey pubKey) {
-        Iterator<PGPSignature> sigIter = pubKey.getSignatures();
-        while(sigIter.hasNext()) {
-            PGPSignature pgpSig = sigIter.next();
-            long keyId = pgpSig.getKeyID();
-            Log.d("keyID certifications", Long.toHexString(keyId).toUpperCase());
+    public static PGPPublicKey getPublicKeyFromString(String str) throws Exception{
+        InputStream in=new ByteArrayInputStream(str.getBytes());
+        in = org.spongycastle.openpgp.PGPUtil.getDecoderStream(in);
+        JcaPGPPublicKeyRingCollection pgpPub = new JcaPGPPublicKeyRingCollection(in);
+        in.close();
+        PGPPublicKey key = null;
+        Iterator<PGPPublicKeyRing> rIt = pgpPub.getKeyRings();
+        while (key == null && rIt.hasNext()) {
+            PGPPublicKeyRing kRing = rIt.next();
+            Iterator<PGPPublicKey> kIt = kRing.getPublicKeys();
+            while (key == null && kIt.hasNext()) {
+                PGPPublicKey k = kIt.next();
+                key = k;
+            }
         }
+        return key;
     }
 
-    private static String stripPublicKeyHeaders(String publicKey) {
-        publicKey = publicKey.replace("-----BEGIN PGP PUBLIC KEY BLOCK-----", "");
-        publicKey = publicKey.replace("-----END PGP PUBLIC KEY BLOCK----", "");
-        return publicKey;
-
-    }
-
-    private static String stripPrivateKeyHeaders(String privateKey) {
-        privateKey = privateKey.replace("-----BEGIN PGP PRIVATE KEY BLOCK-----", "");
-        privateKey = privateKey.replace("-----END PGP PRIVATE KEY BLOCK----", "");
-        return privateKey;
-
-    }
-
-    public static PublicKey getRSAPublicKeyFromString(String publicKeyPEM) throws Exception {
-        publicKeyPEM = stripPublicKeyHeaders(publicKeyPEM);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA", "SC");
-        byte[] publicKeyBytes = Base64.decode(publicKeyPEM.getBytes("ASCII"));
-        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(publicKeyBytes);
-        return keyFactory.generatePublic(x509KeySpec);
-    }
-
-    private static PrivateKey getRSAPrivateKeyFromString(String privateKeyPEM) throws Exception {
-        privateKeyPEM = stripPrivateKeyHeaders(privateKeyPEM);
-        KeyFactory fact = KeyFactory.getInstance("RSA", "SC");
-        byte[] clear = Base64.decode(privateKeyPEM);
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(clear);
-        PrivateKey priv = fact.generatePrivate(keySpec);
-        Arrays.fill(clear, (byte) 0);
-        return priv;
+    public static PGPSecretKey getSecretKeyFromString(String str) throws Exception{
+        InputStream in = new ByteArrayInputStream(str.getBytes());
+        in = org.spongycastle.openpgp.PGPUtil.getDecoderStream(in);
+        JcaPGPSecretKeyRingCollection pgpPriv = new JcaPGPSecretKeyRingCollection(in);
+        in.close();
+        PGPSecretKey key = null;
+        Iterator<PGPSecretKeyRing> rIt = pgpPriv.getKeyRings();
+        while (key == null && rIt.hasNext()) {
+            PGPSecretKeyRing kRing = rIt.next();
+            Iterator<PGPSecretKey> kIt = kRing.getSecretKeys();
+            while (key == null && kIt.hasNext()) {
+                PGPSecretKey k = kIt.next();
+                key = k;
+            }
+        }
+        return key;
     }
 
     private static byte[] signPublicKey(PGPSecretKey secretKey, String secretKeyPass, PGPPublicKey keyToBeSigned, String notationName, String notationValue, boolean armor) throws Exception {
@@ -268,7 +279,7 @@ public class SignActivity extends AppCompatActivity {
             out = new ArmoredOutputStream(out);
         }
         PGPPrivateKey pgpPrivKey = secretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder().setProvider("SC").build(secretKeyPass.toCharArray()));
-        PGPSignatureGenerator       sGen = new PGPSignatureGenerator(new JcaPGPContentSignerBuilder(secretKey.getPublicKey().getAlgorithm(), PGPUtil.SHA1).setProvider("SC"));
+        PGPSignatureGenerator sGen = new PGPSignatureGenerator(new JcaPGPContentSignerBuilder(secretKey.getPublicKey().getAlgorithm(), PGPUtil.SHA1).setProvider("SC"));
         sGen.init(PGPSignature.DIRECT_KEY, pgpPrivKey);
         BCPGOutputStream bOut = new BCPGOutputStream(out);
         sGen.generateOnePassVersion(false).encode(bOut);

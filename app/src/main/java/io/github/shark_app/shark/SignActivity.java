@@ -181,7 +181,8 @@ public class SignActivity extends AppCompatActivity {
                     scannedUserPublicKey = jsonObject.getString("publickey");
                     scannedEmailField.setText(scannedUserEmail);
                     scannedNameField.setText(scannedUserName);
-                    scannedPublicKeyField.setText(scannedUserPublicKey);
+                    PGPPublicKey pgpPublicKey = getPublicKeyFromString(scannedUserPublicKey);
+                    scannedPublicKeyField.setText(String.valueOf(pgpPublicKey.getKeyID()));
                     proceed = true;
                 }
                 catch (Exception e) {

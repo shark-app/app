@@ -252,24 +252,24 @@ public class SignActivity extends AppCompatActivity {
     }
 
     private static byte[] signPublicKey(PGPSecretKey secretKey, String secretKeyPass, PGPPublicKey keyToBeSigned, String notationName, String notationValue, boolean armor) throws Exception {
-        OutputStream out = new ByteArrayOutputStream();
+        OutputStream outputStream = new ByteArrayOutputStream();
         if (armor) {
-            out = new ArmoredOutputStream(out);
+            outputStream = new ArmoredOutputStream(outputStream);
         }
-        PGPPrivateKey pgpPrivKey = secretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder().setProvider("SC").build(secretKeyPass.toCharArray()));
-        PGPSignatureGenerator sGen = new PGPSignatureGenerator(new JcaPGPContentSignerBuilder(secretKey.getPublicKey().getAlgorithm(), PGPUtil.SHA1).setProvider("SC"));
-        sGen.init(PGPSignature.DIRECT_KEY, pgpPrivKey);
-        BCPGOutputStream bOut = new BCPGOutputStream(out);
-        sGen.generateOnePassVersion(false).encode(bOut);
-        PGPSignatureSubpacketGenerator spGen = new PGPSignatureSubpacketGenerator();
-        spGen.setNotationData(true, true, notationName, notationValue);
-        PGPSignatureSubpacketVector packetVector = spGen.generate();
-        sGen.setHashedSubpackets(packetVector);
-        bOut.flush();
+        PGPPrivateKey pgpPrivateKey = secretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder().setProvider("SC").build(secretKeyPass.toCharArray()));
+        PGPSignatureGenerator pgpSignatureGenerator = new PGPSignatureGenerator(new JcaPGPContentSignerBuilder(secretKey.getPublicKey().getAlgorithm(), PGPUtil.SHA1).setProvider("SC"));
+        pgpSignatureGenerator.init(PGPSignature.DIRECT_KEY, pgpPrivateKey);
+        BCPGOutputStream bcpgOutputStream = new BCPGOutputStream(outputStream);
+        pgpSignatureGenerator.generateOnePassVersion(false).encode(bcpgOutputStream);
+        PGPSignatureSubpacketGenerator pgpSignatureSubpacketGenerator = new PGPSignatureSubpacketGenerator();
+        pgpSignatureSubpacketGenerator.setNotationData(true, true, notationName, notationValue);
+        PGPSignatureSubpacketVector packetVector = pgpSignatureSubpacketGenerator.generate();
+        pgpSignatureGenerator.setHashedSubpackets(packetVector);
+        bcpgOutputStream.flush();
         if (armor) {
-            out.close();
+            outputStream.close();
         }
-        return PGPPublicKey.addCertification(keyToBeSigned, sGen.generate()).getEncoded();
+        return PGPPublicKey.addCertification(keyToBeSigned, pgpSignatureGenerator.generate()).getEncoded();
     }
 
     @Override

@@ -54,6 +54,7 @@ import java.util.Iterator;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 import static io.github.shark_app.shark.MainActivity.PREFS_NAME;
 import static io.github.shark_app.shark.MainActivity.PREFS_USER_PRIVATE_KEY;
@@ -80,11 +81,37 @@ public class SignActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign);
         ButterKnife.bind(this);
+        signButton.setEnabled(false);
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         currentUserPrivateKey = settings.getString(PREFS_USER_PRIVATE_KEY, null);
         Intent intent = getIntent();
         String scannedUserEmail = intent.getStringExtra("qrCodeValue");
         getScannedUserPublicData(scannedUserEmail);
+    }
+
+    @OnClick(R.id.signButton)
+    public void signKey(View view) {
+        try {
+            PGPPublicKey keyToBeSigned = getPublicKeyFromString(scannedUserPublicKey);
+            PGPSecretKey secretKey = getSecretKeyFromString(currentUserPrivateKey);
+            PGPPublicKeyRing signedRing = new PGPPublicKeyRing(
+                    new ByteArrayInputStream(signPublicKey(secretKey, "sahi", keyToBeSigned, "TEST", "true", true)), new JcaKeyFingerprintCalculator());
+            File sdcard = Environment.getExternalStorageDirectory();
+            File directory = new File(sdcard.getAbsolutePath() + "/Signed_Keys/");
+            directory.mkdir();
+            String filename = scannedUserName + ".asc";
+            File file = new File(directory, filename);
+            ArmoredOutputStream armoredOutputStream = new ArmoredOutputStream(new FileOutputStream(file));
+            signedRing.encode(armoredOutputStream);
+            armoredOutputStream.flush();
+            armoredOutputStream.close();
+        }
+        catch (PGPException p) {
+            makeAlertDialog("PGP error", "The application encountered an error. Please check the private key involved in signing and the private key passphrase that was entered. Press OK to scan again.");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void getScannedUserPublicData(String email) {
@@ -171,7 +198,6 @@ public class SignActivity extends AppCompatActivity {
     }
 
     private void getDataTaskComplete(int getDataTaskResult) {
-        boolean proceed = false;
         switch (getDataTaskResult) {
             case 0: {
                 try {
@@ -183,7 +209,7 @@ public class SignActivity extends AppCompatActivity {
                     scannedNameField.setText(scannedUserName);
                     PGPPublicKey pgpPublicKey = getPublicKeyFromString(scannedUserPublicKey);
                     scannedPublicKeyField.setText(String.valueOf(pgpPublicKey.getKeyID()));
-                    proceed = true;
+                    signButton.setEnabled(true);
                 }
                 catch (PGPException p) {
                     makeAlertDialog("PGP error", "The application encountered an error. The public key returned by scanning is not valid. Press OK to scan again.");
@@ -201,29 +227,6 @@ public class SignActivity extends AppCompatActivity {
                 break;
             default: makeSnackbar("ERROR!");
                 break;
-        }
-        if (proceed) {
-            try {
-                PGPPublicKey keyToBeSigned = getPublicKeyFromString(scannedUserPublicKey);
-                PGPSecretKey secretKey = getSecretKeyFromString(currentUserPrivateKey);
-                PGPPublicKeyRing signedRing = new PGPPublicKeyRing(
-                        new ByteArrayInputStream(signPublicKey(secretKey, "sahi", keyToBeSigned, "TEST", "true", true)), new JcaKeyFingerprintCalculator());
-                File sdcard = Environment.getExternalStorageDirectory();
-                File directory = new File(sdcard.getAbsolutePath() + "/Signed_Keys/");
-                directory.mkdir();
-                String filename = scannedUserName + ".asc";
-                File file = new File(directory, filename);
-                ArmoredOutputStream armoredOutputStream = new ArmoredOutputStream(new FileOutputStream(file));
-                signedRing.encode(armoredOutputStream);
-                armoredOutputStream.flush();
-                armoredOutputStream.close();
-            }
-            catch (PGPException p) {
-                makeAlertDialog("PGP error", "The application encountered an error. Please check the private key involved in signing and the private key passphrase that was entered. Press OK to scan again.");
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 

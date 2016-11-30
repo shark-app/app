@@ -1,5 +1,6 @@
 package io.github.shark_app.shark;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,6 +16,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import org.json.JSONObject;
@@ -76,11 +78,40 @@ public class SignActivity extends AppCompatActivity {
 
     @OnClick(R.id.signButton)
     public void signKey(View view) {
+        final Dialog passphraseDialog = new Dialog(this);
+            passphraseDialog.setContentView(R.layout.dialog_passphrase);
+            Button buttonOk = (Button) passphraseDialog.findViewById(R.id.ok);
+            Button buttonCancel = (Button) passphraseDialog.findViewById(R.id.cancel);
+            final EditText passphraseText = (EditText) passphraseDialog.findViewById(R.id.passphrase);
+            buttonOk.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String passphrase = passphraseText.getText().toString().trim();
+                    if(passphrase.length() > 0) {
+                        passphraseDialog.dismiss();
+                        startSigningProcedure(passphrase);
+                    }
+                    else {
+                        makeSnackbar("Please enter passphrase!");
+                    }
+                }
+            });
+            buttonCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    passphraseDialog.dismiss();
+                }
+            });
+            passphraseDialog.show();
+
+    }
+
+    private void startSigningProcedure(String passphrase) {
         try {
             PGPPublicKey keyToBeSigned = PGPClass.getPublicKeyFromString(scannedUserPublicKey);
             PGPSecretKey secretKey = PGPClass.getSecretKeyFromString(currentUserPrivateKey);
             PGPPublicKeyRing signedRing = new PGPPublicKeyRing(
-                    new ByteArrayInputStream(PGPClass.signPublicKey(secretKey, "sahi", keyToBeSigned, "TEST", "true", true)), new JcaKeyFingerprintCalculator());
+                    new ByteArrayInputStream(PGPClass.signPublicKey(secretKey, passphrase, keyToBeSigned, "TEST", "true", true)), new JcaKeyFingerprintCalculator());
             File sdcard = Environment.getExternalStorageDirectory();
             File directory = new File(sdcard.getAbsolutePath() + "/Signed_Keys/");
             directory.mkdir();

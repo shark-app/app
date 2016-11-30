@@ -29,6 +29,8 @@ import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.spongycastle.openpgp.PGPPublicKey;
+import org.spongycastle.openpgp.PGPSecretKey;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -255,6 +257,19 @@ public class RegisterActivity extends AppCompatActivity {
                 .start();
     }
 
+    private void makeAlertDialog(String title, String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        builder.show();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -265,6 +280,18 @@ public class RegisterActivity extends AppCompatActivity {
                 String filename = fullPath.substring(index + 1);
                 switch(FILE_PICKER_REQUEST_CODE) {
                     case 1: {
+                        publicKeyFilePath = null;
+                        publicKeyButton.setText(R.string.public_key_hint);
+                        publicKeyButton.setTextColor(white);
+                        pickedPublicKeyFile = false;
+                        try{
+                            PGPPublicKey test = PGPClass.getPublicKeyFromString(getKeyFromFile(fullPath));
+                            String keyId = String.valueOf(test.getKeyID());
+                        }
+                        catch (Exception e) {
+                            makeAlertDialog("Error", "The selected file is not a valid PGP public key file. Please select a valid file.");
+                            break;
+                        }
                         publicKeyFilePath = fullPath;
                         String buttonText = "Picked file " + filename;
                         publicKeyButton.setText(buttonText);
@@ -273,6 +300,18 @@ public class RegisterActivity extends AppCompatActivity {
                         break;
                     }
                     case 2: {
+                        privateKeyFilePath = null;
+                        privateKeyButton.setText(R.string.private_key_hint);
+                        privateKeyButton.setTextColor(white);
+                        pickedPrivateKeyFile = false;
+                        try{
+                            PGPSecretKey test = PGPClass.getSecretKeyFromString(getKeyFromFile(fullPath));
+                            String keyId = String.valueOf(test.getKeyID());
+                        }
+                        catch (Exception e) {
+                            makeAlertDialog("Error", "The selected file is not a valid PGP private key file. Please select a valid file.");
+                            break;
+                        }
                         privateKeyFilePath = fullPath;
                         String buttonText = "Picked file " + filename;
                         privateKeyButton.setText(buttonText);

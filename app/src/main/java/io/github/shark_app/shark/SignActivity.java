@@ -110,7 +110,13 @@ public class SignActivity extends AppCompatActivity {
     }
 
     private void startSigningProcedure(String passphrase) {
+        boolean signingDone = false;
         try {
+            progressDialog = new ProgressDialog(SignActivity.this, ProgressDialog.STYLE_SPINNER);
+            progressDialog.setMessage("Signing key");
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
             PGPPublicKey keyToBeSigned = PGPClass.getPublicKeyFromString(scannedUserPublicKey);
             PGPSecretKey secretKey = PGPClass.getSecretKeyFromString(currentUserPrivateKey);
             PGPPublicKeyRing signedRing = new PGPPublicKeyRing(
@@ -124,12 +130,19 @@ public class SignActivity extends AppCompatActivity {
             signedRing.encode(armoredOutputStream);
             armoredOutputStream.flush();
             armoredOutputStream.close();
+            signingDone = true;
+            progressDialog.dismiss();
         }
         catch (PGPException p) {
-            makeAlertDialog("PGP error", "The application encountered an error. Please check the private key involved in signing and the private key passphrase that was entered. Press OK to scan again.");
+            progressDialog.dismiss();
+            makeAlertDialog("PGP error", "The application encountered an error. Please check the private key passphrase that was entered. Press OK to scan again.");
         }
         catch (Exception e) {
+            progressDialog.dismiss();
             e.printStackTrace();
+        }
+        if (signingDone == true) {
+            makeAlertDialog("Success!", "The key signing procedure has been completed. The signed key of user " + scannedUserName + " will now be uploaded to our servers.");
         }
     }
 

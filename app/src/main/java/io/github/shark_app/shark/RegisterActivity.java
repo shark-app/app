@@ -19,6 +19,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -92,18 +93,21 @@ public class RegisterActivity extends AppCompatActivity {
 
     @OnClick(R.id.publicKeyButton)
     public void pickPublicKeyFile(View view) {
+        hideSoftKeyboard();
         FILE_PICKER_REQUEST_CODE = PUBLIC_KEY_FILE_PICKER_REQUEST_CODE;
         checkPermissionsAndOpenFilePicker();
     }
 
     @OnClick(R.id.privateKeyButton)
     public void pickPrivateKeyFile(View view) {
+        hideSoftKeyboard();
         FILE_PICKER_REQUEST_CODE = PRIVATE_KEY_FILE_PICKER_REQUEST_CODE;
         checkPermissionsAndOpenFilePicker();
     }
 
     @OnClick(R.id.registerButton)
     public void registerUser(View view) {
+        hideSoftKeyboard();
         boolean errorStatus = validateForm(view);
         if (errorStatus) return;
         String userName = nameField.getText().toString().trim();
@@ -312,6 +316,11 @@ public class RegisterActivity extends AppCompatActivity {
                     break;
         }
         if (proceed) runPostDataTask(userName, userEmail, userPublicKey);
+    }
+
+    public void hideSoftKeyboard(){
+        InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
     private class GetDataTaskRunner extends AsyncTask<String, Void, Integer> {

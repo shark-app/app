@@ -15,6 +15,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -86,6 +87,7 @@ public class SignActivity extends AppCompatActivity {
             buttonOk.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    hideSoftKeyboard();
                     String passphrase = passphraseText.getText().toString().trim();
                     if(passphrase.length() > 0) {
                         passphraseDialog.dismiss();
@@ -99,6 +101,7 @@ public class SignActivity extends AppCompatActivity {
             buttonCancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    hideSoftKeyboard();
                     passphraseDialog.dismiss();
                 }
             });
@@ -260,6 +263,11 @@ public class SignActivity extends AppCompatActivity {
                     }
                 });
         builder.show();
+    }
+
+    public void hideSoftKeyboard(){
+        InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
     @Override

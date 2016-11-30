@@ -69,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.fab)
     public void opensource(View view) {
-        //Intent intent = new Intent(this, OpenSourceLicensesActivity.class);
-        //startActivity(intent);
+        Intent intent = new Intent(this, OpenSourceLicensesActivity.class);
+        startActivity(intent);
     }
 
     private void startAppropriateActivityAfterUserExistsCheck(Context context, Class<?> one, Class<?> two){

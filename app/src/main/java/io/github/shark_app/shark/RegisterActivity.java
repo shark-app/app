@@ -250,7 +250,7 @@ public class RegisterActivity extends AppCompatActivity {
         new MaterialFilePicker()
                 .withActivity(this)
                 .withRequestCode(FILE_PICKER_REQUEST_CODE)
-                .withFilter(Pattern.compile("(.*\\.txt$|.*\\.gpg$|.*\\.asc$)"))
+                .withFilter(Pattern.compile("(.*\\.asc$)"))
                 .withHiddenFiles(true)
                 .start();
     }

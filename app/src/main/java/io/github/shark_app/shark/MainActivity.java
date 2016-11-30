@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        floatingActionButton.setBackgroundColor(getResources().getColor(R.color.fbutton_color_emerald));
         settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         if (firstStart()) {
             SharedPreferences.Editor editor = settings.edit();

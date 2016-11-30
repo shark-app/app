@@ -6,5 +6,5 @@
     <dimen name="edittext_width">300dp</dimen>
     <dimen name="edittext_width_sp">250dp</dimen>
     <dimen name="padding_sp">5dp</dimen>
-    <dimen name="design_fab_image_size" tools:override="true">40dp</dimen>
+    <dimen name="design_fab_image_size" tools:override="true">30dp</dimen>
 </resources>

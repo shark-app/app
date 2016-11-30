@@ -65,5 +65,6 @@
         android:elevation="@dimen/padding_sp"
         android:src="@drawable/opensource"
         app:fabSize="normal"
-        app:rippleColor="@color/fbutton_color_nephritis"/>
+        app:rippleColor="@color/fbutton_color_nephritis"
+        app:backgroundTint="@color/fbutton_color_emerald"/>
 </RelativeLayout>

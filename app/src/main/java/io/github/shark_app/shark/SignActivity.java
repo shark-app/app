@@ -45,6 +45,8 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.security.Security;
+import java.text.DateFormat;
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -127,8 +129,9 @@ public class SignActivity extends AppCompatActivity {
             progressDialog.show();
             PGPPublicKey keyToBeSigned = PGPClass.getPublicKeyFromString(scannedUserPublicKey);
             PGPSecretKey secretKey = PGPClass.getSecretKeyFromString(currentUserPrivateKey);
+            String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
             PGPPublicKeyRing signedRing = new PGPPublicKeyRing(
-                    new ByteArrayInputStream(PGPClass.signPublicKey(secretKey, passphrase, keyToBeSigned, "TEST", "true", true)), new JcaKeyFingerprintCalculator());
+                    new ByteArrayInputStream(PGPClass.signPublicKey(secretKey, passphrase, keyToBeSigned, "SigningDatetime", currentDateTimeString, true)), new JcaKeyFingerprintCalculator());
             File sdcard = Environment.getExternalStorageDirectory();
             File directory = new File(sdcard.getAbsolutePath() + "/Signed_Keys/");
             directory.mkdir();

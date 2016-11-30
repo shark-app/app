@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -35,12 +36,14 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.shareButton) Button shareButton;
     @BindView(R.id.scanButton) Button scanButton;
+    @BindView(R.id.fab) FloatingActionButton floatingActionButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        floatingActionButton.setBackgroundColor(getResources().getColor(R.color.fbutton_color_emerald));
         settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         if (firstStart()) {
             SharedPreferences.Editor editor = settings.edit();
@@ -62,6 +65,12 @@ public class MainActivity extends AppCompatActivity {
     public void scan(View view) {
         activityToStart = ScanActivity.class;
         checkCameraPermission();
+    }
+
+    @OnClick(R.id.fab)
+    public void opensource(View view) {
+        //Intent intent = new Intent(this, OpenSourceLicensesActivity.class);
+        //startActivity(intent);
     }
 
     private void startAppropriateActivityAfterUserExistsCheck(Context context, Class<?> one, Class<?> two){

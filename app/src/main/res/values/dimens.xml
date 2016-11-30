@@ -4,4 +4,6 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="standard_padding">20dp</dimen>
     <dimen name="edittext_width">300dp</dimen>
+    <dimen name="edittext_width_sp">250dp</dimen>
+    <dimen name="padding_sp">5dp</dimen>
 </resources>

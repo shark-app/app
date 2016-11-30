@@ -10,7 +10,7 @@
     <string name="name_hint">Name</string>
     <string name="public_key_hint">Select public key file</string>
     <string name="private_key_hint">Select private key file</string>
-    <string name="scanned_public_key_hint">Public key</string>
+    <string name="scanned_public_key_hint">Public key ID</string>
     <string name="scanned_private_key_hint">Private key</string>
     <string name="sign_button_text">Sign scanned user\'s\nkey with your key</string>
     <string name="slide1title">Welcome!</string>
@@ -21,4 +21,6 @@
     <string name="slide3description">Also, we use your device\'s Internet connection in order to store/retrieve public keys on our server.</string>
     <string name="slide4title">Let\'s get started!</string>
     <string name="slide4description">Press DONE to proceed.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

@@ -52,15 +52,28 @@
             android:text="@string/option_two"
             android:drawableLeft="@drawable/ic_camera_white_24dp"
             android:drawablePadding="@dimen/standard_padding"
-            fbutton:buttonColor="@color/fbutton_color_alizarin"
+            fbutton:buttonColor="@color/fbutton_color_wisteria"
             fbutton:shadowEnabled="true"/>
     </LinearLayout>
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/fab_exit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:clickable="true"
+        android:elevation="@dimen/padding_sp"
+        android:src="@drawable/ic_exit_to_app_black_24dp"
+        app:fabSize="normal"
+        app:rippleColor="@color/fbutton_color_pomegranate"
+        app:backgroundTint="@color/fbutton_color_alizarin"/>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_open_source"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_above="@id/fab_exit"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:clickable="true"
         android:elevation="@dimen/padding_sp"
         android:src="@drawable/opensource"

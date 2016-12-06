@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -36,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.shareButton) Button shareButton;
     @BindView(R.id.scanButton) Button scanButton;
-    @BindView(R.id.fab) FloatingActionButton floatingActionButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +64,13 @@ public class MainActivity extends AppCompatActivity {
         checkCameraPermission();
     }
 
-    @OnClick(R.id.fab)
+    @OnClick(R.id.fab_exit)
+    public void exit(View view) {
+        finish();
+        System.exit(0);
+    }
+
+    @OnClick(R.id.fab_open_source)
     public void opensource(View view) {
         Intent intent = new Intent(this, OpenSourceLicensesActivity.class);
         startActivity(intent);

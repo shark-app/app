@@ -167,6 +167,10 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private boolean validateForm(View view) {
+        emailField.setTextColor(white);
+        nameField.setTextColor(white);
+        publicKeyButton.setTextColor(white);
+        privateKeyButton.setTextColor(white);
         boolean setError = false;
         if (checkEmptySetError(nameField)) {
             setError = true;

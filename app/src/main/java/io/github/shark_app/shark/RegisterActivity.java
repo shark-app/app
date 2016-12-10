@@ -18,6 +18,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -198,28 +199,45 @@ public class RegisterActivity extends AppCompatActivity {
                 setError = true;
             }
         }
-        makeAlertDialog("", checkEmailBelongsToKey());
+        if (!checkEmailBelongsToKey()) {
+            emailField.setTextColor(red);
+            makeSnackbar(view, "Incorrect email address. The selected key does not contain the entered user ID");
+            setError = true;
+        }
         return setError;
     }
 
-    private String checkEmailBelongsToKey() {
+    private boolean checkEmailBelongsToKey() {
+        Log.e("CHECK_THIS", "starting check");
         try {
             PGPPublicKey testPublicKey = PGPClass.getPublicKeyFromString(getKeyFromFile(publicKeyFilePath));
+            Log.e("CHECK_THIS", "read key");
             StringBuilder stringBuilder = new StringBuilder();
             Iterator<String> iterator = testPublicKey.getUserIDs();
+            Log.e("CHECK_THIS", "got iterator");
             while (iterator.hasNext()) {
                 stringBuilder.append(iterator.next());
-                stringBuilder.append("\n");
             }
-            stringBuilder.delete(0, stringBuilder.indexOf("<"));
-            stringBuilder.deleteCharAt(0);
-            stringBuilder.setLength(stringBuilder.length() - 2);
-            return(stringBuilder.toString());
+            stringBuilder.delete(0, stringBuilder.indexOf("<") +  1);
+            stringBuilder.delete(stringBuilder.indexOf(">"), stringBuilder.length());
+            String userKeyEmail = stringBuilder.toString();
+            Log.e("CHECK_THIS", userKeyEmail);
+            String userEnteredEmail = emailField.getText().toString().trim();
+            Log.e("CHECK_THIS", userEnteredEmail);
+            if (userKeyEmail.equals(userEnteredEmail)) {
+                Log.e("CHECK_THIS", "returning true");
+                return true;
+            }
+            else {
+                Log.e("CHECK_THIS", "returning false");
+                return false;
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        return "";
+        Log.e("CHECK_THIS", "done");
+        return false;
     }
 
     private boolean checkKeyBelongsToSameUser() {

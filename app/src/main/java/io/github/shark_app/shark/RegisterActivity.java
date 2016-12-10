@@ -44,6 +44,7 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.regex.Pattern;
 
 import butterknife.BindColor;
@@ -166,6 +167,10 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private boolean validateForm(View view) {
+        emailField.setTextColor(white);
+        nameField.setTextColor(white);
+        publicKeyButton.setTextColor(white);
+        privateKeyButton.setTextColor(white);
         boolean setError = false;
         if (checkEmptySetError(nameField)) {
             setError = true;
@@ -189,7 +194,81 @@ public class RegisterActivity extends AppCompatActivity {
             makeSnackbar(view, "No private key file selected!");
             setError = true;
         }
+        if (pickedPublicKeyFile && pickedPrivateKeyFile) {
+            if (!checkKeyBelongsToSameUser()) {
+                publicKeyButton.setTextColor(red);
+                privateKeyButton.setTextColor(red);
+                makeSnackbar(view, "Public and private keys don't belong to same keypair!");
+                setError = true;
+            }
+        }
+        if (!checkNameBelongsToKey()) {
+            nameField.setTextColor(red);
+            makeSnackbar(view, "Incorrect name. The selected key does not contain the entered user ID");
+            setError = true;
+        }
+        if (!checkEmailBelongsToKey()) {
+            emailField.setTextColor(red);
+            makeSnackbar(view, "Incorrect email address. The selected key does not contain the entered user ID");
+            setError = true;
+        }
         return setError;
+    }
+
+    private boolean checkNameBelongsToKey() {
+        try {
+            PGPPublicKey testPublicKey = PGPClass.getPublicKeyFromString(getKeyFromFile(publicKeyFilePath));
+            StringBuilder stringBuilder = new StringBuilder();
+            Iterator<String> iterator = testPublicKey.getUserIDs();
+            while (iterator.hasNext()) {
+                stringBuilder.append(iterator.next());
+            }
+            stringBuilder.delete(stringBuilder.indexOf("<") - 1, stringBuilder.length());
+            String userKeyName = stringBuilder.toString();
+            String userEnteredName = nameField.getText().toString().trim();
+            if (userKeyName.equals(userEnteredName)) return true;
+            else return false;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private boolean checkEmailBelongsToKey() {
+        try {
+            PGPPublicKey testPublicKey = PGPClass.getPublicKeyFromString(getKeyFromFile(publicKeyFilePath));
+            StringBuilder stringBuilder = new StringBuilder();
+            Iterator<String> iterator = testPublicKey.getUserIDs();
+            while (iterator.hasNext()) {
+                stringBuilder.append(iterator.next());
+            }
+            stringBuilder.delete(0, stringBuilder.indexOf("<") +  1);
+            stringBuilder.delete(stringBuilder.indexOf(">"), stringBuilder.length());
+            String userKeyEmail = stringBuilder.toString();
+            String userEnteredEmail = emailField.getText().toString().trim();
+            if (userKeyEmail.equals(userEnteredEmail)) return true;
+            else return false;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private boolean checkKeyBelongsToSameUser() {
+        try {
+            PGPPublicKey testPublicKey = PGPClass.getPublicKeyFromString(getKeyFromFile(publicKeyFilePath));
+            String publicKeyId = String.valueOf(testPublicKey.getKeyID());
+            PGPSecretKey testPrivateKey = PGPClass.getSecretKeyFromString(getKeyFromFile(privateKeyFilePath));
+            String privateKeyId = String.valueOf(testPrivateKey.getKeyID());
+            if (publicKeyId.equals(privateKeyId)) return true;
+            else return false;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 
     private void makeSnackbar(View view, String snackbarText) {

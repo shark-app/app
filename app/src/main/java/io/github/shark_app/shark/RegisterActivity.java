@@ -202,12 +202,37 @@ public class RegisterActivity extends AppCompatActivity {
                 setError = true;
             }
         }
+        if (!checkNameBelongsToKey()) {
+            nameField.setTextColor(red);
+            makeSnackbar(view, "Incorrect name. The selected key does not contain the entered user ID");
+            setError = true;
+        }
         if (!checkEmailBelongsToKey()) {
             emailField.setTextColor(red);
             makeSnackbar(view, "Incorrect email address. The selected key does not contain the entered user ID");
             setError = true;
         }
         return setError;
+    }
+
+    private boolean checkNameBelongsToKey() {
+        try {
+            PGPPublicKey testPublicKey = PGPClass.getPublicKeyFromString(getKeyFromFile(publicKeyFilePath));
+            StringBuilder stringBuilder = new StringBuilder();
+            Iterator<String> iterator = testPublicKey.getUserIDs();
+            while (iterator.hasNext()) {
+                stringBuilder.append(iterator.next());
+            }
+            stringBuilder.delete(stringBuilder.indexOf("<") - 1, stringBuilder.length());
+            String userKeyName = stringBuilder.toString();
+            String userEnteredName = nameField.getText().toString().trim();
+            if (userKeyName.equals(userEnteredName)) return true;
+            else return false;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private boolean checkEmailBelongsToKey() {

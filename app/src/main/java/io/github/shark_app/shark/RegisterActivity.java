@@ -191,7 +191,7 @@ public class RegisterActivity extends AppCompatActivity {
             makeSnackbar(view, "No private key file selected!");
             setError = true;
         }
-        else if (pickedPublicKeyFile && pickedPrivateKeyFile) {
+        if (pickedPublicKeyFile && pickedPrivateKeyFile) {
             if (!checkKeyBelongsToSameUser()) {
                 publicKeyButton.setTextColor(red);
                 privateKeyButton.setTextColor(red);

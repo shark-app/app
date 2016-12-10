@@ -189,7 +189,30 @@ public class RegisterActivity extends AppCompatActivity {
             makeSnackbar(view, "No private key file selected!");
             setError = true;
         }
+        else if (pickedPublicKeyFile && pickedPrivateKeyFile) {
+            if (!checkKeyBelongsToSameUser()) {
+                publicKeyButton.setTextColor(red);
+                privateKeyButton.setTextColor(red);
+                makeSnackbar(view, "Public and private keys don't belong to same keypair!");
+                setError = true;
+            }
+        }
         return setError;
+    }
+
+    private boolean checkKeyBelongsToSameUser() {
+        try {
+            PGPPublicKey testPublicKey = PGPClass.getPublicKeyFromString(getKeyFromFile(publicKeyFilePath));
+            String publicKeyId = String.valueOf(testPublicKey.getKeyID());
+            PGPSecretKey testPrivateKey = PGPClass.getSecretKeyFromString(getKeyFromFile(privateKeyFilePath));
+            String privateKeyId = String.valueOf(testPrivateKey.getKeyID());
+            if (publicKeyId.equals(privateKeyId)) return true;
+            else return false;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 
     private void makeSnackbar(View view, String snackbarText) {

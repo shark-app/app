@@ -44,6 +44,7 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.regex.Pattern;
 
 import butterknife.BindColor;
@@ -197,7 +198,28 @@ public class RegisterActivity extends AppCompatActivity {
                 setError = true;
             }
         }
+        makeAlertDialog("", checkEmailBelongsToKey());
         return setError;
+    }
+
+    private String checkEmailBelongsToKey() {
+        try {
+            PGPPublicKey testPublicKey = PGPClass.getPublicKeyFromString(getKeyFromFile(publicKeyFilePath));
+            StringBuilder stringBuilder = new StringBuilder();
+            Iterator<String> iterator = testPublicKey.getUserIDs();
+            while (iterator.hasNext()) {
+                stringBuilder.append(iterator.next());
+                stringBuilder.append("\n");
+            }
+            stringBuilder.delete(0, stringBuilder.indexOf("<"));
+            stringBuilder.deleteCharAt(0);
+            stringBuilder.setLength(stringBuilder.length() - 2);
+            return(stringBuilder.toString());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     private boolean checkKeyBelongsToSameUser() {

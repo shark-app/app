@@ -195,18 +195,18 @@ public class RegisterActivity extends AppCompatActivity {
             setError = true;
         }
         if (pickedPublicKeyFile && pickedPrivateKeyFile) {
-            if (!checkKeyBelongsToSameUser()) {
+            if (!checkKeyBelongsToSameUser() && !setError) {
                 publicKeyButton.setTextColor(red);
                 privateKeyButton.setTextColor(red);
                 makeSnackbar(view, "Public and private keys don't belong to same keypair!");
                 setError = true;
             }
-            if (!checkNameBelongsToKey()) {
+            if (!checkNameBelongsToKey() && !setError) {
                 nameField.setTextColor(red);
                 makeSnackbar(view, "Incorrect name. The selected key does not contain the entered user ID");
                 setError = true;
             }
-            if (!checkEmailBelongsToKey()) {
+            if (!checkEmailBelongsToKey() && !setError) {
                 emailField.setTextColor(red);
                 makeSnackbar(view, "Incorrect email address. The selected key does not contain the entered user ID");
                 setError = true;

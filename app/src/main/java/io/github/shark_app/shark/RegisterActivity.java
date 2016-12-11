@@ -201,16 +201,16 @@ public class RegisterActivity extends AppCompatActivity {
                 makeSnackbar(view, "Public and private keys don't belong to same keypair!");
                 setError = true;
             }
-        }
-        if (!checkNameBelongsToKey()) {
-            nameField.setTextColor(red);
-            makeSnackbar(view, "Incorrect name. The selected key does not contain the entered user ID");
-            setError = true;
-        }
-        if (!checkEmailBelongsToKey()) {
-            emailField.setTextColor(red);
-            makeSnackbar(view, "Incorrect email address. The selected key does not contain the entered user ID");
-            setError = true;
+            if (!checkNameBelongsToKey()) {
+                nameField.setTextColor(red);
+                makeSnackbar(view, "Incorrect name. The selected key does not contain the entered user ID");
+                setError = true;
+            }
+            if (!checkEmailBelongsToKey()) {
+                emailField.setTextColor(red);
+                makeSnackbar(view, "Incorrect email address. The selected key does not contain the entered user ID");
+                setError = true;
+            }
         }
         return setError;
     }
